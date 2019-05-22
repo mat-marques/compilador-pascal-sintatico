@@ -1,1 +1,1 @@
-# compilador-pascal-sintatico
+# compilador-pascal
