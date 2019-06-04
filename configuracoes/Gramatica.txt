@@ -1,0 +1,130 @@
+1. <program> ::=
+	program <identificador> (<lista de identificadores>);
+	<bloco>.
+
+2. <bloco> ::=
+	[<parte de declarações de rótulos>]
+	[<parte de definicoes de tipos>]
+	[<parte de declarações de variáveis>]
+	[<parte de declarações de sub-rotinas>]
+	<comando composto>
+
+3. <parte de declarações de rótulos> ::=
+	label <número> {,<número>};
+
+4. <parte de definicoes de tipos> ::=
+	type<declaração de tipo> {;<definição de tipo>};
+
+5. <definição de tipo> ::=
+	<identificador> = <tipo>
+
+6. <tipo> ::=
+	<identificador>|
+	array[<indice> {, <indice>}] of <tipo>
+
+7. <indice> ::= 
+	<número> .. <número>
+
+
+8. <parte de declarações de variáveis> ::=
+	var <declarações de variáveis>	
+		{; <declarações de variáveis>};
+
+9. <parte de variáveis> ::=
+	<lista de identificadores> ; <tipo>
+
+10. <lista de identificadores>::=
+	<identificador> {, <identificador>}
+
+11. <parte de declarações de sub-rotinas> ::=
+	{<declarações de procedimentos>;|
+	 <declarações de função>;}
+
+12. <declaração de procedimento> ::=
+	procedure <identificador>
+		[<pârametros formais>]; <bloco>
+		
+13. <declaração de função> ::=
+	function <identificador>
+		[<parâmetros formais>]; <identificador>;
+		<bloco>
+
+14. <parâmetros formais> ::=
+	(<seção de parâmetros formais>
+	 {;<seção de parâmetros formais>})
+
+15. <seção de parâmetros formais> ::=
+	[var] <lista de identificadores>;<identificador>
+	| function <lista de identificadores>;<identificador>
+	| procedure <lista de identificadores>
+
+16. <comando composto> ::=
+	begin <comando>{; <comando>} end
+
+17. <comando> ::=
+	[número;]<comando sem rótulo>
+
+18. <comando sem rótulo>
+	<atribuição>
+	| <chamada de procedimento>
+	| <desvio>
+	| <comando composto>
+	| <comando condicional>
+	| <comando repetitivo>
+
+19. <atribuição> ::=
+	<variável> := <expressão>
+
+20. <chamada de procedimentos> ::=
+	<identificador> [(<lista de expressões>)]
+	
+21. <desvios> ::=
+	goto <número>
+
+22. <comando condicional> ::=
+	if <expressão> then <comando sem rótulo>
+	[else <comando sem rótulo>]
+
+23. <comando repetitivo> ::=
+	while <expressão> do <comando sem rótulo>
+
+24. <lista de expressões> ::=
+	<expressão> {, <expressões>}
+
+25. <expressões> ::=
+	<expressãp simples>[<relação><expressãp simples>]
+
+26. <relação> ::=
+	= | <> | < | <= | > | >=
+
+27. <expressãp simples> ::=
+	[+ | -] <termo> {(+ | - | or) <termo>}
+
+28. <termo> ::=
+	<fator> {(* | div | and) <fator>}
+
+29. <fator> ::=
+	<variável>
+	|<chamada de função>
+	|(<expressão>)
+	|not <fator>
+
+30. <variável> ::=
+	<identificador>
+       |<identificador> [<lista de expressões>]
+
+31. <chamada de função> ::=
+	<identificador> [(lista de expressões)]
+
+32. <número> ::=
+	<digito> {<digito>}
+
+33. <digito> ::=
+	0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
+34. <identificador> ::=
+	<letra> {<letra> | <digito>}
+
+35. <letra> ::=
+	a | b | c | d | e | f | g | h | i | j | k | l | m |
+	n | o | p | q | r | s | t | u | v | w | x | y | z
