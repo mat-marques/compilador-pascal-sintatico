@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
 
-#include "/lexico/Lexicon.h"
+#include "./lexico/Lexicon.h"
+#include "./sintatico/Parser.h"
 
 using namespace std;
 

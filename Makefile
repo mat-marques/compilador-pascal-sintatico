@@ -1,31 +1,31 @@
 CFLAGS = -g -std=c++11
-build = /PATHTO/compilador-pascal-sintatico/build/
-lexico = /PATHTO/compilador-pascal-sintatico/lexico/
+build = ./build/
+lexico = ./lexico/
 #sintatico = 
 
-main: main.o HashTable.o List.o Item.o Lexicon.o Token.o
-	g++ $(CFLAGS) -o main main.o HashTable.o List.o Item.o Lexicon.o Token.o
+main: $(build)main.o $(build)HashTable.o $(build)List.o $(build)Item.o $(build)Lexicon.o $(build)Token.o
+	g++ $(CFLAGS) -o main $(build)main.o $(build)HashTable.o $(build)List.o $(build)Item.o $(build)Lexicon.o $(build)Token.o
 
-$(build)main.o: Lexicon.h Lexicon.cpp main.cpp
-	g++ $(CFLAGS) -c main.cpp -o main.o
+$(build)main.o: $(lexico)Lexicon.h $(lexico)Lexicon.cpp main.cpp
+	g++ $(CFLAGS) -c main.cpp -o $(build)main.o
 
-$(build)HashTable.o: HashTable.h HashTable.cpp List.h List.cpp
-	g++ $(CFLAGS) -c HashTable.cpp -o HashTable.o
+$(build)HashTable.o: $(lexico)HashTable.h $(lexico)HashTable.cpp $(lexico)List.h $(lexico)List.cpp
+	g++ $(CFLAGS) -c $(lexico)HashTable.cpp -o $(build)HashTable.o
 
-$(build)List.o: List.h List.cpp Item.h Item.cpp
-	gcc $(CFLAGS) -c List.cpp -o List.o
+$(build)List.o: $(lexico)List.h $(lexico)List.cpp $(lexico)Item.h $(lexico)Item.cpp
+	gcc $(CFLAGS) -c $(lexico)List.cpp -o $(build)List.o
 
-$(build)Item.o: Item.h Item.cpp
-	g++ $(CFLAGS) -c Item.cpp -o Item.o
+$(build)Item.o: $(lexico)Item.h $(lexico)Item.cpp
+	g++ $(CFLAGS) -c $(lexico)Item.cpp -o $(build)Item.o
 
-$(build)Token.o: Token.h Token.cpp
-	g++ $(CFLAGS) -c Token.cpp -o Token.o
+$(build)Token.o: $(lexico)Token.h $(lexico)Token.cpp
+	g++ $(CFLAGS) -c $(lexico)Token.cpp -o $(build)Token.o
 
-$(build)Lexicon.o: Lexicon.h Lexicon.cpp HashTable.h HashTable.cpp Token.h Token.cpp
-	g++ $(CFLAGS) -c Lexicon.cpp -o Lexicon.o
+$(build)Lexicon.o: $(lexico)Lexicon.h $(lexico)Lexicon.cpp $(lexico)HashTable.h $(lexico)HashTable.cpp $(lexico)Token.h $(lexico)Token.cpp
+	g++ $(CFLAGS) -c $(lexico)Lexicon.cpp -o $(build)Lexicon.o
 
 .PHONY:
 	clean
 
 clean:
-	rm edit *.o
+	rm edit $(build)*.o

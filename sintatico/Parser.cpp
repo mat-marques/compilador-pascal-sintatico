@@ -1,8 +1,10 @@
 #include "Parser.h"
 #include "../lexico/Token.h"
 
-
-
+Parser::Parser(list<Token*> *tokens, HashTable *hashIdentifiers){
+    this->tokens = &tokens;
+    this->hashIdentifiers = &hashIdentifiers;
+}
 
 
 void proximoToken() {
