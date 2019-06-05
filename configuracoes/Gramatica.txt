@@ -1,21 +1,21 @@
-1. <program> ::=
+1. <programa> ::=
 	program <identificador> (<lista de identificadores>);
 	<bloco>.
 
 2. <bloco> ::=
-	[<parte de declarações de rótulos>]
+	[<parte de declaracoes de rotulos>]
 	[<parte de definicoes de tipos>]
-	[<parte de declarações de variáveis>]
-	[<parte de declarações de sub-rotinas>]
+	[<parte de declaracoes de variaveis>]
+	[<parte de declaracoes de sub-rotinas>]
 	<comando composto>
 
-3. <parte de declarações de rótulos> ::=
-	label <número> {,<número>};
+3. <parte de declaracoes de rotulos> ::=
+	label <numero> {,<numero>};
 
 4. <parte de definicoes de tipos> ::=
-	type<declaração de tipo> {;<definição de tipo>};
+	type<declaracoes de tipo> {;<definicao de tipo>};
 
-5. <definição de tipo> ::=
+5. <definiÃ§Ã£o de tipo> ::=
 	<identificador> = <tipo>
 
 6. <tipo> ::=
@@ -23,37 +23,37 @@
 	array[<indice> {, <indice>}] of <tipo>
 
 7. <indice> ::= 
-	<número> .. <número>
+	<numero> .. <numero>
 
 
-8. <parte de declarações de variáveis> ::=
-	var <declarações de variáveis>	
-		{; <declarações de variáveis>};
+8. <parte de declaracoes de variaveis> ::=
+	var <declaracoes de variaveis>	
+		{; <declaracoes de variaveis>};
 
-9. <parte de variáveis> ::=
+9. <parte de variaveis> ::=
 	<lista de identificadores> ; <tipo>
 
 10. <lista de identificadores>::=
 	<identificador> {, <identificador>}
 
-11. <parte de declarações de sub-rotinas> ::=
-	{<declarações de procedimentos>;|
-	 <declarações de função>;}
+11. <parte de declaracoes de sub-rotinas> ::=
+	{<declaracoes de procedimentos>;|
+	 <declaracoes de funcao>;}
 
-12. <declaração de procedimento> ::=
+12. <declaracao de procedimento> ::=
 	procedure <identificador>
-		[<pârametros formais>]; <bloco>
+		[<parametros formais>]; <bloco>
 		
-13. <declaração de função> ::=
+13. <declaracao de funcao> ::=
 	function <identificador>
-		[<parâmetros formais>]; <identificador>;
+		[<parametros formais>]; <identificador>;
 		<bloco>
 
-14. <parâmetros formais> ::=
-	(<seção de parâmetros formais>
-	 {;<seção de parâmetros formais>})
+14. <parametros formais> ::=
+	(<secoes de parametros formais>
+	 {;<secoes de parametros formais>})
 
-15. <seção de parâmetros formais> ::=
+15. <secoes de parametros formais> ::=
 	[var] <lista de identificadores>;<identificador>
 	| function <lista de identificadores>;<identificador>
 	| procedure <lista de identificadores>
@@ -62,61 +62,61 @@
 	begin <comando>{; <comando>} end
 
 17. <comando> ::=
-	[número;]<comando sem rótulo>
+	[numero;]<comando sem rotulo>
 
-18. <comando sem rótulo>
-	<atribuição>
+18. <comando sem rotulo>
+	<atribuicoes>
 	| <chamada de procedimento>
 	| <desvio>
 	| <comando composto>
 	| <comando condicional>
 	| <comando repetitivo>
 
-19. <atribuição> ::=
-	<variável> := <expressão>
+19. <atribuicoes> ::=
+	<variavel> := <expressoes>
 
 20. <chamada de procedimentos> ::=
-	<identificador> [(<lista de expressões>)]
+	<identificador> [(<lista de expressoes>)]
 	
 21. <desvios> ::=
-	goto <número>
+	goto <numero>
 
 22. <comando condicional> ::=
-	if <expressão> then <comando sem rótulo>
-	[else <comando sem rótulo>]
+	if <expressao> then <comando sem rotulo>
+	[else <comando sem rotulo>]
 
 23. <comando repetitivo> ::=
-	while <expressão> do <comando sem rótulo>
+	while <expressao> do <comando sem rotulo>
 
-24. <lista de expressões> ::=
-	<expressão> {, <expressões>}
+24. <lista de expressoes> ::=
+	<expressoes> {, <expressoes>}
 
-25. <expressões> ::=
-	<expressãp simples>[<relação><expressãp simples>]
+25. <expressoes> ::=
+	<expressao simples>[<relacao><expressao simples>]
 
-26. <relação> ::=
+26. <relacao> ::=
 	= | <> | < | <= | > | >=
 
-27. <expressãp simples> ::=
+27. <expressao simples> ::=
 	[+ | -] <termo> {(+ | - | or) <termo>}
 
 28. <termo> ::=
 	<fator> {(* | div | and) <fator>}
 
 29. <fator> ::=
-	<variável>
-	|<chamada de função>
-	|(<expressão>)
+	<variavel>
+	|<chamada de funcoes>
+	|(<expressoes>)
 	|not <fator>
 
-30. <variável> ::=
+30. <variavel> ::=
 	<identificador>
-       |<identificador> [<lista de expressões>]
+       |<identificador> [<lista de expressoes>]
 
-31. <chamada de função> ::=
-	<identificador> [(lista de expressões)]
+31. <chamada de funcao> ::=
+	<identificador> [(lista de expressoes)]
 
-32. <número> ::=
+32. <numero> ::=
 	<digito> {<digito>}
 
 33. <digito> ::=

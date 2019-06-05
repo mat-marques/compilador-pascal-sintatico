@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 
-#include "Lexicon.h"
+#include "/lexico/Lexicon.h"
 
 using namespace std;
 
