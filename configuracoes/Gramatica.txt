@@ -13,9 +13,9 @@
 	label <numero> {,<numero>};
 
 4. <parte de definicoes de tipos> ::=
-	type<declaracoes de tipo> {;<definicao de tipo>};
+	type<definicao de tipo> {;<definicao de tipo>};
 
-5. <definição de tipo> ::=
+5. <definicao de tipo> ::=
 	<identificador> = <tipo>
 
 6. <tipo> ::=
@@ -30,8 +30,8 @@
 	var <declaracoes de variaveis>	
 		{; <declaracoes de variaveis>};
 
-9. <parte de variaveis> ::=
-	<lista de identificadores> ; <tipo>
+9. <declaracoes de variaveis> ::=
+	<lista de identificadores> : <tipo>
 
 10. <lista de identificadores>::=
 	<identificador> {, <identificador>}

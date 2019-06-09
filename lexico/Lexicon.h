@@ -19,7 +19,8 @@ class Lexicon {
         list<Token*> *tokens;
         Lexicon(string automatonFileName, string reservedWordsFileName, int idHashSize, int rwHashSize);
         void process_lexicon(string inputFileName, string outPutHashFile, string tokensFileName);
-
+        Token *getTokenList(int index);
+        
     private:
         int **getMatrix();
         void deleteMatrix();

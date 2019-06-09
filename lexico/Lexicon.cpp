@@ -393,3 +393,14 @@ bool Lexicon::checkString(string myString, int line){
 	}
 	return true;
 }
+
+Token *Lexicon::getTokenList(int index) {
+	int count = 0;
+	for (std::list<Token*>::iterator it = this->tokens->begin(); it != this->tokens->end(); ++it){
+    	if(count == index) {
+			return *it;
+		}
+		count++;
+	}
+	return NULL;
+}

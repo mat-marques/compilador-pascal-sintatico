@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 
-#include "./lexico/Lexicon.h"
 #include "./sintatico/Parser.h"
 
 using namespace std;
@@ -9,7 +8,7 @@ using namespace std;
 int main() {
 
    string input, output, tokens;
-   Lexicon *l = new Lexicon("./configuracoes/Automaton.txt", "./configuracoes/Palavras_Reservadas.txt", 211, 50);
+   Parser *parser = new Parser("./configuracoes/Automaton.txt", "./configuracoes/Palavras_Reservadas.txt");
 
    cout << "Digite o nome do arquivo de entrada: ";
    cin >> input;
@@ -22,10 +21,10 @@ int main() {
    
    cout << "Compilando ..." << endl;
 
-   l->process_lexicon("./testes/" + input, "./saida/" + output, "./saida/" + tokens);
+   parser->process_lexicon("./testes/" + input, "./saida/" + output, "./saida/" + tokens);
 
    cout << "fim ..." << endl;
-   delete l;
+   delete parser;
 
    return 0;
 }
