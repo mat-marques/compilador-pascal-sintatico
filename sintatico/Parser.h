@@ -48,10 +48,6 @@ class Parser : public Lexicon{
     void fator();
     void variavel();
     void chamadaDeFuncao();
-    void numero();
-    void digito();
-    void identificador();
-    void letra();
 
 };
 

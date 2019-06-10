@@ -16,25 +16,29 @@ void Parser::programa() {
 
     if(t->var_value.compare("program") == 0){
         eat(t->var_value);
-        identificador();
+        
         t = Lexicon::getTokenList(this->currentToken);
-
-        if(t->var_value == "(") {
+        if(t->var_type.compare("IDENTIFICADOR") == 0){
             eat(t->var_value);
-            listaDeIdentificadores();
             t = Lexicon::getTokenList(this->currentToken);
 
-            if(t->var_value == ")") {
+            if(t->var_value == "(") {
                 eat(t->var_value);
+                listaDeIdentificadores();
                 t = Lexicon::getTokenList(this->currentToken);
 
-                if(t->var_value == ";") {
+                if(t->var_value == ")") {
                     eat(t->var_value);
-                    bloco();
                     t = Lexicon::getTokenList(this->currentToken);
 
-                    if(t->var_value == ".") {
+                    if(t->var_value == ";") {
                         eat(t->var_value);
+                        bloco();
+                        t = Lexicon::getTokenList(this->currentToken);
+
+                        if(t->var_value == ".") {
+                            eat(t->var_value);
+                        }
                     }
                 }
             }
@@ -56,29 +60,32 @@ void Parser::parteDeDeclaracoesDeRotulos() {
     if(t->var_value.compare("label") == 0) {
         eat(t->var_value);
 
-        numero();
-
-        if(t->var_value.compare("{") == 0) {
+        t = Lexicon::getTokenList(this->currentToken);
+        if(t->var_type.compare("NUMERO") == 0){
             eat(t->var_value);
+        }
 
+        while(true){
             t = Lexicon::getTokenList(this->currentToken);
             if(t->var_value.compare(",") == 0) {
                 eat(t->var_value);
 
-                numero();
-
-                if(t->var_value.compare("}") == 0) {
+                t = Lexicon::getTokenList(this->currentToken);
+                if(t->var_type.compare("NUMERO") == 0){
                     eat(t->var_value);
-                    t = Lexicon::getTokenList(this->currentToken);
-
-                    if(t->var_value.compare(";") == 0) {
-                        eat(t->var_value);
-                    }
-
                 }
+
+            } else {
+                break;
             }
         }
-    }   
+
+        t = Lexicon::getTokenList(this->currentToken);
+        if(t->var_value.compare(";") == 0) {
+            eat(t->var_value);
+        }
+    }
+
 }
 
 void Parser::parteDeDefinicoesDeTipos() {
@@ -89,68 +96,63 @@ void Parser::parteDeDefinicoesDeTipos() {
 
         definicaoDeTipo();
 
-        if(t->var_value.compare("{") == 0) {
-            eat(t->var_value);
-
+        while(true){
             t = Lexicon::getTokenList(this->currentToken);
             if(t->var_value.compare(";") == 0) {
                 eat(t->var_value);
 
                 definicaoDeTipo();
 
-                if(t->var_value.compare("}") == 0) {
-                    eat(t->var_value);
-                    t = Lexicon::getTokenList(this->currentToken);
-
-                    if(t->var_value.compare(";") == 0) {
-                        eat(t->var_value);
-                    }
-
-                }
+            } else {
+                break;
             }
         }
+
     }  
 }
 
 void Parser::definicaoDeTipo() {
     Token *t = Lexicon::getTokenList(this->currentToken);
 
-    identificador();
-
-    if(t->var_value.compare("=") == 0) {
+    t = Lexicon::getTokenList(this->currentToken);
+    if(t->var_type.compare("IDENTIFICADOR") == 0){
         eat(t->var_value);
+        t = Lexicon::getTokenList(this->currentToken);
+        if(t->var_value.compare("=") == 0) {
+            eat(t->var_value);
 
-        tipo();
+            tipo();
+        }
     }
 }
 
 void Parser::tipo() {
-    identificador();
     Token *t = Lexicon::getTokenList(this->currentToken);
 
+    if(t->var_type.compare("IDENTIFICADOR") == 0){
+        eat(t->var_value);
+    }
+
+    t = Lexicon::getTokenList(this->currentToken);
     if(t->var_value.compare("array") == 0) {
         eat(t->var_value);
 
         indice();
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare("{") == 0) {
-            eat(t->var_value);
-
+        while(true){
             t = Lexicon::getTokenList(this->currentToken);
             if(t->var_value.compare(",") == 0) {
                 eat(t->var_value);
 
                 indice();
 
-                if(t->var_value.compare("}") == 0) {
-                    eat(t->var_value);
-                }
+            } else {
+                break;
             }
         }
 
         t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare("{") == 0) {
+        if(t->var_value.compare("of") == 0) {
             eat(t->var_value);
 
             tipo();
@@ -162,13 +164,19 @@ void Parser::tipo() {
 void Parser::indice() {
     Token *t;
 
-    numero();
+    t = Lexicon::getTokenList(this->currentToken);
+    if(t->var_type.compare("NUMERO") == 0){
+        eat(t->var_value);
+    }
 
     t = Lexicon::getTokenList(this->currentToken);
     if(t->var_value.compare("..") == 0) {
         eat(t->var_value);
 
-        numero();
+        t = Lexicon::getTokenList(this->currentToken);
+        if(t->var_type.compare("NUMERO") == 0){
+            eat(t->var_value);
+        }
         
     }
 }
@@ -182,25 +190,15 @@ void Parser::parteDeDeclaracoesDeVariaveis() {
 
         declaracoesDeVariaveis();
         
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare("{") == 0) {
-            eat(t->var_value);
-
+         while(true){
             t = Lexicon::getTokenList(this->currentToken);
             if(t->var_value.compare(";") == 0) {
                 eat(t->var_value);
 
                 declaracoesDeVariaveis();
 
-                t = Lexicon::getTokenList(this->currentToken);
-                if(t->var_value.compare("}") == 0) {
-                    eat(t->var_value);
-
-                    t = Lexicon::getTokenList(this->currentToken);
-                    if(t->var_value.compare(";") == 0) {
-                        eat(t->var_value);
-                    }
-                }
+            } else {
+                break;
             }
         }
     }
@@ -223,48 +221,57 @@ void Parser::declaracoesDeVariaveis() {
 void Parser::listaDeIdentificadores(){
     Token *t;
 
-    identificador();
+    t = Lexicon::getTokenList(this->currentToken);
+    if(t->var_type.compare("IDENTIFICADOR") == 0){
+        eat(t->var_value);
+    }
 
     t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value.compare("{") == 0) {
-        eat(t->var_value);
-
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare(",") == 0) {
-            eat(t->var_value);
-
-            identificador();
-
+        while(true){
             t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value.compare("}") == 0) {
+            if(t->var_value.compare(",") == 0) {
                 eat(t->var_value);
+
+                t = Lexicon::getTokenList(this->currentToken);
+                if(t->var_type.compare("IDENTIFICADOR") == 0){
+                    eat(t->var_value);
+                }
+
+            } else {
+                break;
             }
         }
-    }
 }
 
 void Parser::parteDeDeclaracoesDeSubRotinas(){
     Token *t;
 
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value.compare("{") == 0) {
-        eat(t->var_value);
-
-        declaracaoDeProcedimento();
-
+    while(true) {
         t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare(";") == 0) {
-            eat(t->var_value);
+        if(t->var_value.compare("procedure") == 0){
+
+            declaracaoDeProcedimento();
+
+            t = Lexicon::getTokenList(this->currentToken);
+            if(t->var_value.compare(";") == 0) {
+                eat(t->var_value);
+            }
+        } 
+        else if(t->var_value.compare("function") == 0){
+
+            declaracaoDeFuncao();
+
+            t = Lexicon::getTokenList(this->currentToken);
+            if(t->var_value.compare(";") == 0) {
+                eat(t->var_value);
+            }
         }
-
-        declaracaoDeFuncao();
-
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare(";") == 0) {
-            eat(t->var_value);
+        else {
+            break;
         }
-
     }
+
+
 }
 
 void Parser::declaracaoDeProcedimento(){
@@ -274,15 +281,20 @@ void Parser::declaracaoDeProcedimento(){
     if(t->var_value.compare("procedure") == 0) {
         eat(t->var_value);
 
-       identificador();
-       parametrosFormais();
-
         t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare(";") == 0) {
+        if(t->var_type.compare("IDENTIFICADOR") == 0){
             eat(t->var_value);
-        }
 
-        bloco();
+            parametrosFormais();
+
+            t = Lexicon::getTokenList(this->currentToken);
+            if(t->var_value.compare(";") == 0) {
+                eat(t->var_value);
+                
+                bloco();
+            }
+
+        }
 
     }
 }
@@ -294,22 +306,30 @@ void Parser::declaracaoDeFuncao(){
     if(t->var_value.compare("function") == 0) {
         eat(t->var_value);
 
-       identificador();
-       parametrosFormais();
-
         t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare(";") == 0) {
+        if(t->var_type.compare("IDENTIFICADOR") == 0){
             eat(t->var_value);
-        }
-        
-        identificador();
+            
+            parametrosFormais();
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare(";") == 0) {
-            eat(t->var_value);
-        }
+            t = Lexicon::getTokenList(this->currentToken);
+            if(t->var_value.compare(";") == 0) {
+                eat(t->var_value);
+            }
+            
+            t = Lexicon::getTokenList(this->currentToken);
+            if(t->var_type.compare("IDENTIFICADOR") == 0){
+                eat(t->var_value);
 
-        bloco();
+                t = Lexicon::getTokenList(this->currentToken);
+                if(t->var_value.compare(";") == 0) {
+                    eat(t->var_value);
+                    
+                    bloco();
+
+                }
+            }
+        }
 
     }
 }
@@ -322,24 +342,18 @@ void Parser::parametrosFormais(){
 
         secoesDeParametrosFormais();
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare("{") == 0) {
-            eat(t->var_value);
-
+        while(true){
             t = Lexicon::getTokenList(this->currentToken);
             if(t->var_value.compare(";") == 0) {
                 eat(t->var_value);
+
+                secoesDeParametrosFormais();
+
+            } else {
+                break;
             }
-
-            secoesDeParametrosFormais();
-
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value.compare("}") == 0) {
-                eat(t->var_value);
-            }
-
         }
-
+      
         t = Lexicon::getTokenList(this->currentToken);
         if(t->var_value.compare(")") == 0) {
             eat(t->var_value);
@@ -361,7 +375,10 @@ void Parser::secoesDeParametrosFormais(){
         eat(t->var_value);
     }
 
-    identificador();
+    t = Lexicon::getTokenList(this->currentToken);
+    if(t->var_type.compare("IDENTIFICADOR") == 0){
+        eat(t->var_value);
+    }
 
     t = Lexicon::getTokenList(this->currentToken);
     if(t->var_value.compare("function") == 0) {
@@ -374,7 +391,10 @@ void Parser::secoesDeParametrosFormais(){
                 eat(t->var_value);
             }
 
-            identificador();
+            t = Lexicon::getTokenList(this->currentToken);
+            if(t->var_type.compare("IDENTIFICADOR") == 0){
+                eat(t->var_value);
+            }
     }
 
     t = Lexicon::getTokenList(this->currentToken);
@@ -394,25 +414,21 @@ void Parser::comandoComposto(){
 
         comando();
 
-        if(t->var_value.compare("{") == 0) {
-            eat(t->var_value);
-
+        while(true){
             t = Lexicon::getTokenList(this->currentToken);
             if(t->var_value.compare(";") == 0) {
                 eat(t->var_value);
 
                 comando();
 
-                if(t->var_value.compare("}") == 0) {
-                    eat(t->var_value);
-                    t = Lexicon::getTokenList(this->currentToken);
-
-                    if(t->var_value.compare("end") == 0) {
-                        eat(t->var_value);
-                    }
-
-                }
+            } else {
+                break;
             }
+        }
+
+        t = Lexicon::getTokenList(this->currentToken);
+        if(t->var_value.compare("end") == 0) {
+            eat(t->var_value);
         }
     }   
 }
@@ -420,7 +436,10 @@ void Parser::comandoComposto(){
 void Parser::comando(){
     Token *t;
     
-    numero();
+    t = Lexicon::getTokenList(this->currentToken);
+    if(t->var_type.compare("NUMERO") == 0){
+        eat(t->var_value);
+    }
 
     t = Lexicon::getTokenList(this->currentToken);
     if(t->var_value.compare(";") == 0) {
@@ -450,8 +469,14 @@ void Parser::atribuicoes(){
 }
 
 void Parser::chamadaDeProcedimentos(){
-    identificador();
-    Token *t = Lexicon::getTokenList(this->currentToken);
+    Token *t;
+
+    t = Lexicon::getTokenList(this->currentToken);
+    if(t->var_type.compare("IDENTIFICADOR") == 0){
+        eat(t->var_value);
+    }
+
+    t = Lexicon::getTokenList(this->currentToken);
     if(t->var_value == "(") {
         eat(t->var_value);
 
@@ -468,7 +493,10 @@ void Parser::desvios(){
     Token *t = Lexicon::getTokenList(this->currentToken);
     if(t->var_value == "goto") {
         eat(t->var_value);
-        numero();
+        t = Lexicon::getTokenList(this->currentToken);
+        if(t->var_type.compare("NUMERO") == 0){
+            eat(t->var_value);
+        }
     }
 }
 
@@ -515,24 +543,18 @@ void Parser::listaDeExpressoes(){
     
     expressoes();
 
-    Token *t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value == "{") {
-        eat(t->var_value);
-
+    Token *t;
+    while(true){
         t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value == ",") {
+        if(t->var_value.compare(",") == 0) {
             eat(t->var_value);
 
             expressoes();
 
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value == "}") {
-                eat(t->var_value);
-            }
-
+        } else {
+            break;
         }
     }
-
 }
 
 void Parser::expressoes(){
@@ -568,68 +590,41 @@ void Parser::expressaoSimples(){
 
     termo();
 
-    if(t->var_value == "{") {
-        eat(t->var_value);
+    while(true) {
         t = Lexicon::getTokenList(this->currentToken);
-
-        if(t->var_value == "(") {
+        if(t->var_value == "+") {
             eat(t->var_value);
-            t = Lexicon::getTokenList(this->currentToken);
-
-            if(t->var_value == "+") {
-                eat(t->var_value);
-            } else if(t->var_value == "-") {
-                eat(t->var_value);
-            } else if(t->var_value == "or") {
-                eat(t->var_value);
-            }
-
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value == ")") {
-                eat(t->var_value);
-            }
-        }
-
-        termo();
-
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value == "}") {
+            termo();
+        } else if(t->var_value == "-") {
             eat(t->var_value);
+            termo();
+        } else if(t->var_value == "or") {
+            eat(t->var_value);
+            termo();
+        } else {
+            break;
         }
     }
+
 }
 
 void Parser::termo(){
     fator();
     Token *t = Lexicon::getTokenList(this->currentToken);
 
-    if(t->var_value == "{") {
-        eat(t->var_value);
+    while(true) {
         t = Lexicon::getTokenList(this->currentToken);
-
-        if(t->var_value == "(") {
+        if(t->var_value == "*") {
             eat(t->var_value);
-            t = Lexicon::getTokenList(this->currentToken);
-
-            if(t->var_value == "*") {
-                eat(t->var_value);
-            } else if(t->var_value == "div") {
-                eat(t->var_value);
-            } else if(t->var_value == "and") {
-                eat(t->var_value);
-            }
-
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value == ")") {
-                eat(t->var_value);
-            }
-        }
-        
-        fator();
-
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value == "}") {
+            fator();
+        } else if(t->var_value == "div") {
             eat(t->var_value);
+            fator();
+        } else if(t->var_value == "and") {
+            eat(t->var_value);
+            fator();
+        } else {
+            break;
         }
     }
 }
@@ -646,138 +641,32 @@ void Parser::fator(){
 }
 
 void Parser::variavel(){
-    identificador();
-    listaDeExpressoes();
+    Token *t;
+    t = Lexicon::getTokenList(this->currentToken);
+    if(t->var_type.compare("IDENTIFICADOR") == 0){
+        eat(t->var_value);
+        listaDeExpressoes();
+    }
 }
 
 void Parser::chamadaDeFuncao(){
-    identificador();
-    Token *t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value == "(") {
+    Token *t;
+    t = Lexicon::getTokenList(this->currentToken);
+    if(t->var_type.compare("IDENTIFICADOR") == 0){
         eat(t->var_value);
-
-        listaDeExpressoes();
-
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value == ")") {
-            eat(t->var_value);
-        }
-    }
-}
-
-void Parser::numero(){
-    digito();
-    Token *t = Lexicon::getTokenList(this->currentToken);
-
-    if(t->var_value == "{") {
-        eat(t->var_value);
-
-        digito();
-
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value == "}") {
-            eat(t->var_value);
-        }
         
-    }
-}
-
-void Parser::digito(){
-    Token *t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value == "0") {
-        eat(t->var_value);
-    } else if(t->var_value == "1") {
-        eat(t->var_value);
-    } else if(t->var_value == "2") {
-        eat(t->var_value);
-    } else if(t->var_value == "3") {
-        eat(t->var_value);
-    } else if(t->var_value == "4") {
-        eat(t->var_value);
-    } else if(t->var_value == "5") {
-        eat(t->var_value);
-    } else if(t->var_value == "6") {
-        eat(t->var_value);
-    } else if(t->var_value == "7") {
-        eat(t->var_value);
-    } else if(t->var_value == "8") {
-        eat(t->var_value);
-    } else if(t->var_value == "9") {
-        eat(t->var_value);
-    }
-}
-
-void Parser::identificador(){
-    letra();
-    Token *t = Lexicon::getTokenList(this->currentToken);
-
-    if(t->var_value == "{") {
-        eat(t->var_value);
-
-        letra();
-        digito();
-
         t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value == "}") {
+        if(t->var_value == "(") {
             eat(t->var_value);
+
+            listaDeExpressoes();
+
+            t = Lexicon::getTokenList(this->currentToken);
+            if(t->var_value == ")") {
+                eat(t->var_value);
+            }
         }
 
     }
-}
 
-void Parser::letra(){
-    Token *t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value == "a") {
-        eat(t->var_value);
-    } else if(t->var_value == "b") {
-        eat(t->var_value);
-    } else if(t->var_value == "c") {
-        eat(t->var_value);
-    } else if(t->var_value == "d") {
-        eat(t->var_value);
-    } else if(t->var_value == "e") {
-        eat(t->var_value);
-    } else if(t->var_value == "f") {
-        eat(t->var_value);
-    } else if(t->var_value == "g") {
-        eat(t->var_value);
-    } else if(t->var_value == "h") {
-        eat(t->var_value);
-    } else if(t->var_value == "i") {
-        eat(t->var_value);
-    } else if(t->var_value == "j") {
-        eat(t->var_value);
-    } else if(t->var_value == "k") {
-        eat(t->var_value);
-    } else if(t->var_value == "l") {
-        eat(t->var_value);
-    } else if(t->var_value == "m") {
-        eat(t->var_value);
-    } else if(t->var_value == "n") {
-        eat(t->var_value);
-    } else if(t->var_value == "o") {
-        eat(t->var_value);
-    } else if(t->var_value == "p") {
-        eat(t->var_value);
-    } else if(t->var_value == "q") {
-        eat(t->var_value);
-    } else if(t->var_value == "r") {
-        eat(t->var_value);
-    } else if(t->var_value == "s") {
-        eat(t->var_value);
-    } else if(t->var_value == "t") {
-        eat(t->var_value);
-    } else if(t->var_value == "u") {
-        eat(t->var_value);
-    } else if(t->var_value == "v") {
-        eat(t->var_value);
-    } else if(t->var_value == "w") {
-        eat(t->var_value);
-    } else if(t->var_value == "x") {
-        eat(t->var_value);
-    } else if(t->var_value == "y") {
-        eat(t->var_value);
-    } else if(t->var_value == "z") {
-        eat(t->var_value);
-    }
 }

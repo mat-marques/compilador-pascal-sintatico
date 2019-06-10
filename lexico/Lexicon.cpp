@@ -356,13 +356,13 @@ bool Lexicon::checkString(string myString, int line){
 							}
 							break;
 						case 2:
-							this->tokens->push_back(new Token("NÚMERO", myString.substr(start, aux), line, start));
+							this->tokens->push_back(new Token("NUMERO", myString.substr(start, aux), line, start));
 							break;
 						case 3:
-							this->tokens->push_back(new Token("SÍMBOLO ESPECIAL", myString.substr(start, aux), line, start));
+							this->tokens->push_back(new Token("SIMBOLO ESPECIAL", myString.substr(start, aux), line, start));
 							break;
 						case 4:
-							this->tokens->push_back(new Token("SÍMBOLO ESPECIAL COMPOSTO", myString.substr(start, aux), line, start));
+							this->tokens->push_back(new Token("SIMBOLO ESPECIAL COMPOSTO", myString.substr(start, aux), line, start));
 							break;
 					}
 				}

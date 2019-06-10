@@ -1,5 +1,5 @@
 1. <programa> ::=
-	program <identificador> (<lista de identificadores>);
+	program identificador (<lista de identificadores>);
 	<bloco>.
 
 2. <bloco> ::=
@@ -10,20 +10,20 @@
 	<comando composto>
 
 3. <parte de declaracoes de rotulos> ::=
-	label <numero> {,<numero>};
+	label numero {,numero};
 
 4. <parte de definicoes de tipos> ::=
 	type<definicao de tipo> {;<definicao de tipo>};
 
 5. <definicao de tipo> ::=
-	<identificador> = <tipo>
+	identificador = <tipo>
 
 6. <tipo> ::=
-	<identificador>|
+	identificador|
 	array[<indice> {, <indice>}] of <tipo>
 
 7. <indice> ::= 
-	<numero> .. <numero>
+	numero .. numero
 
 
 8. <parte de declaracoes de variaveis> ::=
@@ -34,19 +34,19 @@
 	<lista de identificadores> : <tipo>
 
 10. <lista de identificadores>::=
-	<identificador> {, <identificador>}
+	identificador {, identificador}
 
 11. <parte de declaracoes de sub-rotinas> ::=
 	{<declaracoes de procedimentos>;|
 	 <declaracoes de funcao>;}
 
 12. <declaracao de procedimento> ::=
-	procedure <identificador>
+	procedure identificador
 		[<parametros formais>]; <bloco>
 		
 13. <declaracao de funcao> ::=
-	function <identificador>
-		[<parametros formais>]; <identificador>;
+	function identificador
+		[<parametros formais>]; identificador;
 		<bloco>
 
 14. <parametros formais> ::=
@@ -54,8 +54,8 @@
 	 {;<secoes de parametros formais>})
 
 15. <secoes de parametros formais> ::=
-	[var] <lista de identificadores>;<identificador>
-	| function <lista de identificadores>;<identificador>
+	[var] <lista de identificadores>;identificador
+	| function <lista de identificadores>;identificador
 	| procedure <lista de identificadores>
 
 16. <comando composto> ::=
@@ -76,10 +76,10 @@
 	<variavel> := <expressoes>
 
 20. <chamada de procedimentos> ::=
-	<identificador> [(<lista de expressoes>)]
+	identificador [(<lista de expressoes>)]
 	
 21. <desvios> ::=
-	goto <numero>
+	goto numero
 
 22. <comando condicional> ::=
 	if <expressao> then <comando sem rotulo>
@@ -110,21 +110,9 @@
 	|not <fator>
 
 30. <variavel> ::=
-	<identificador>
-       |<identificador> [<lista de expressoes>]
+	identificador [<lista de expressoes>]
 
 31. <chamada de funcao> ::=
-	<identificador> [(lista de expressoes)]
+	identificador [(lista de expressoes)]
 
-32. <numero> ::=
-	<digito> {<digito>}
 
-33. <digito> ::=
-	0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-
-34. <identificador> ::=
-	<letra> {<letra> | <digito>}
-
-35. <letra> ::=
-	a | b | c | d | e | f | g | h | i | j | k | l | m |
-	n | o | p | q | r | s | t | u | v | w | x | y | z
