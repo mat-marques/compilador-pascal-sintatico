@@ -13,18 +13,26 @@ void Parser::eat(string symbol) {
 
 void Parser::programa() {
     Token *t = Lexicon::getTokenList(this->currentToken);
+    Variable *programName;
+    vector<Variable*> *listVariables; 
+    Block *block;
 
     if(t->var_value.compare("program") == 0){
         eat(t->var_value);
         
         t = Lexicon::getTokenList(this->currentToken);
         if(t->var_type.compare("IDENTIFICADOR") == 0){
+
+            programName = new Variable(t->var_value);
+            
             eat(t->var_value);
             t = Lexicon::getTokenList(this->currentToken);
 
             if(t->var_value == "(") {
                 eat(t->var_value);
-                listaDeIdentificadores();
+                
+                listVariables = listaDeIdentificadores();
+                
                 t = Lexicon::getTokenList(this->currentToken);
 
                 if(t->var_value == ")") {
@@ -33,7 +41,9 @@ void Parser::programa() {
 
                     if(t->var_value == ";") {
                         eat(t->var_value);
-                        bloco();
+                        
+                        block = bloco();
+                        
                         t = Lexicon::getTokenList(this->currentToken);
 
                         if(t->var_value == ".") {
@@ -44,18 +54,24 @@ void Parser::programa() {
             }
         }
     }
+
+    this->ast = new Program(programName, listVariables, block);
 }
 
-void Parser::bloco(){
-    parteDeDeclaracoesDeRotulos();
+Block *Parser::bloco(){
+    vector<Number*> *labels = parteDeDeclaracoesDeRotulos();
     parteDeDefinicoesDeTipos();
     parteDeDeclaracoesDeVariaveis();
     parteDeDeclaracoesDeSubRotinas();
     comandoComposto();
+    return new Block(labels);
 }
 
-void Parser::parteDeDeclaracoesDeRotulos() {
+vector<Number*> *Parser::parteDeDeclaracoesDeRotulos() {
     Token *t = Lexicon::getTokenList(this->currentToken);
+    
+    int x = 0;
+    vector<Number*> *labels = new vector<Number*>();
 
     if(t->var_value.compare("label") == 0) {
         eat(t->var_value);
@@ -63,6 +79,13 @@ void Parser::parteDeDeclaracoesDeRotulos() {
         t = Lexicon::getTokenList(this->currentToken);
         if(t->var_type.compare("NUMERO") == 0){
             eat(t->var_value);
+
+            stringstream geek(t->var_value); 
+  
+            geek >> x;
+            
+            labels->push_back(new Number(x));
+
         }
 
         while(true){
@@ -73,6 +96,13 @@ void Parser::parteDeDeclaracoesDeRotulos() {
                 t = Lexicon::getTokenList(this->currentToken);
                 if(t->var_type.compare("NUMERO") == 0){
                     eat(t->var_value);
+                    
+                    stringstream geek(t->var_value); 
+  
+                    geek >> x;
+
+                    labels->push_back(new Number(x));
+
                 }
 
             } else {
@@ -86,11 +116,14 @@ void Parser::parteDeDeclaracoesDeRotulos() {
         }
     }
 
+    return labels;
 }
 
-void Parser::parteDeDefinicoesDeTipos() {
+vector<BlockType*> *Parser::parteDeDefinicoesDeTipos() {
     Token *t = Lexicon::getTokenList(this->currentToken);
-
+    
+    vector<BlockType*> *labels = new vector<BlockType*>();
+    
     if(t->var_value.compare("type") == 0) {
         eat(t->var_value);
 
@@ -132,9 +165,7 @@ void Parser::tipo() {
     if(t->var_type.compare("IDENTIFICADOR") == 0){
         eat(t->var_value);
     }
-
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value.compare("array") == 0) {
+    else if(t->var_value.compare("array") == 0) {
         eat(t->var_value);
 
         indice();
@@ -167,18 +198,19 @@ void Parser::indice() {
     t = Lexicon::getTokenList(this->currentToken);
     if(t->var_type.compare("NUMERO") == 0){
         eat(t->var_value);
-    }
-
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value.compare("..") == 0) {
-        eat(t->var_value);
 
         t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_type.compare("NUMERO") == 0){
+        if(t->var_value.compare("..") == 0) {
             eat(t->var_value);
+
+            t = Lexicon::getTokenList(this->currentToken);
+            if(t->var_type.compare("NUMERO") == 0){
+                eat(t->var_value);
+            }
+            
         }
-        
     }
+
 }
 
 void Parser::parteDeDeclaracoesDeVariaveis() {
@@ -190,7 +222,7 @@ void Parser::parteDeDeclaracoesDeVariaveis() {
 
         declaracoesDeVariaveis();
         
-         while(true){
+        while(true){
             t = Lexicon::getTokenList(this->currentToken);
             if(t->var_value.compare(";") == 0) {
                 eat(t->var_value);
@@ -224,9 +256,7 @@ void Parser::listaDeIdentificadores(){
     t = Lexicon::getTokenList(this->currentToken);
     if(t->var_type.compare("IDENTIFICADOR") == 0){
         eat(t->var_value);
-    }
 
-    t = Lexicon::getTokenList(this->currentToken);
         while(true){
             t = Lexicon::getTokenList(this->currentToken);
             if(t->var_value.compare(",") == 0) {
@@ -241,6 +271,7 @@ void Parser::listaDeIdentificadores(){
                 break;
             }
         }
+    }
 }
 
 void Parser::parteDeDeclaracoesDeSubRotinas(){
@@ -315,20 +346,21 @@ void Parser::declaracaoDeFuncao(){
             t = Lexicon::getTokenList(this->currentToken);
             if(t->var_value.compare(";") == 0) {
                 eat(t->var_value);
-            }
-            
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_type.compare("IDENTIFICADOR") == 0){
-                eat(t->var_value);
 
                 t = Lexicon::getTokenList(this->currentToken);
-                if(t->var_value.compare(";") == 0) {
+                if(t->var_type.compare("IDENTIFICADOR") == 0){
                     eat(t->var_value);
-                    
-                    bloco();
 
+                    t = Lexicon::getTokenList(this->currentToken);
+                    if(t->var_value.compare(";") == 0) {
+                        eat(t->var_value);
+                        
+                        bloco();
+
+                    }
                 }
             }
+    
         }
 
     }
@@ -364,24 +396,24 @@ void Parser::parametrosFormais(){
 void Parser::secoesDeParametrosFormais(){
     Token *t = Lexicon::getTokenList(this->currentToken);
 
-    if(t->var_value.compare("var") == 0) {
-        eat(t->var_value);
+    if(t->var_value.compare("var") == 0 || t->var_type.compare("IDENTIFICADOR") == 0) {
+        if(t->var_value.compare("var") == 0){
+            eat(t->var_value);
+        }
+
+        listaDeIdentificadores();
+
+        t = Lexicon::getTokenList(this->currentToken);
+        if(t->var_value.compare(";") == 0) {
+            eat(t->var_value);
+        }
+
+        t = Lexicon::getTokenList(this->currentToken);
+        if(t->var_type.compare("IDENTIFICADOR") == 0){
+            eat(t->var_value);
+        }
     }
-
-    listaDeIdentificadores();
-
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value.compare(";") == 0) {
-        eat(t->var_value);
-    }
-
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_type.compare("IDENTIFICADOR") == 0){
-        eat(t->var_value);
-    }
-
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value.compare("function") == 0) {
+    else if(t->var_value.compare("function") == 0) {
         eat(t->var_value);
 
             listaDeIdentificadores();
@@ -396,9 +428,7 @@ void Parser::secoesDeParametrosFormais(){
                 eat(t->var_value);
             }
     }
-
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value.compare("procedure") == 0) {
+    else if(t->var_value.compare("procedure") == 0) {
         eat(t->var_value);
 
         listaDeIdentificadores();
@@ -439,23 +469,41 @@ void Parser::comando(){
     t = Lexicon::getTokenList(this->currentToken);
     if(t->var_type.compare("NUMERO") == 0){
         eat(t->var_value);
+
+        t = Lexicon::getTokenList(this->currentToken);
+        if(t->var_value.compare(";") == 0) {
+            eat(t->var_value);
+
+            comandoSemRotulo();
+        
+        }
+
+    } else {
+        comandoSemRotulo();
     }
 
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value.compare(";") == 0) {
-        eat(t->var_value);
-    }
-
-    comandoSemRotulo();
 }
 
 void Parser::comandoSemRotulo(){
-    atribuicoes();
-    chamadaDeProcedimentos();
-    desvios();
-    comandoComposto();
-    comandoCondicional();
-    comandoRepetitivo();
+    Token *t;
+    t = Lexicon::getTokenList(this->currentToken);
+
+    if(t->var_type.compare("IDENTIFICADOR") == 0){
+        atribuicoes();
+        chamadaDeProcedimentos();
+    }
+    else if(t->var_value.compare("goto") == 0) {
+        desvios();
+    }
+    else if(t->var_value.compare("begin") == 0) {
+        comandoComposto();
+    }
+    else if(t->var_value.compare("if") == 0) {
+        comandoCondicional();
+    }
+    else {
+        comandoRepetitivo();
+    }
 }
 
 void Parser::atribuicoes(){
@@ -474,17 +522,17 @@ void Parser::chamadaDeProcedimentos(){
     t = Lexicon::getTokenList(this->currentToken);
     if(t->var_type.compare("IDENTIFICADOR") == 0){
         eat(t->var_value);
-    }
-
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value == "(") {
-        eat(t->var_value);
-
-        listaDeExpressoes();
 
         t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value == ")") {
+        if(t->var_value == "(") {
             eat(t->var_value);
+
+            listaDeExpressoes();
+
+            t = Lexicon::getTokenList(this->currentToken);
+            if(t->var_value == ")") {
+                eat(t->var_value);
+            }
         }
     }
 }
@@ -516,12 +564,13 @@ void Parser::comandoCondicional(){
             t = Lexicon::getTokenList(this->currentToken);
             if(t->var_value == "else") {
                 eat(t->var_value);
+
                 comandoSemRotulo();
+            
             }
         }
     }
 }
-
 
 void Parser::comandoRepetitivo(){
     Token *t = Lexicon::getTokenList(this->currentToken);
@@ -533,7 +582,9 @@ void Parser::comandoRepetitivo(){
         t = Lexicon::getTokenList(this->currentToken);
         if(t->var_value == "do") {
             eat(t->var_value);
+
             comandoSemRotulo();
+        
         }
     }
 
@@ -631,13 +682,46 @@ void Parser::termo(){
 
 void Parser::fator(){
     Token *t;
-    variavel();
-    chamadaDeFuncao();
-    expressoes();
     t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value == "not") {
+    if(t->var_type.compare("IDENTIFICADOR") == 0){
+        eat(t->var_value);
+
+        fatorAux();
+
+        variavel();
+        //Duas produções com o mesmo símbolo inicial. Ambiguidade.
+        chamadaDeFuncao();
+    }
+    else if(t->var_value.compare("(") == 0) {
+        eat(t->var_value);
+        expressoes();
+        if(t->var_value.compare(")") == 0) {
+            eat(t->var_value);
+        }
+    }
+    else if(t->var_value == "not") {
         fator();
     }
+}
+
+void Parser::fatorAux() {
+    Token *t = Lexicon::getTokenList(this->currentToken);
+    if(t->var_value.compare("(") != 0){
+
+        listaDeExpressoes();
+    
+    } else {
+        if(t->var_value.compare("(") == 0) {
+            eat(t->var_value);
+    
+            listaDeExpressoes();
+
+            if(t->var_value.compare(")") == 0) {
+                eat(t->var_value);
+            }
+        }
+    }
+
 }
 
 void Parser::variavel(){

@@ -5,12 +5,15 @@
 #include <string>
 #include <list>
 #include <vector>
+#include <sstream> 
 #include "../lexico/Lexicon.h"
-
+#include "./AST/Program.h"
+#include "./AST/Number.h"
 using namespace std;
 
 class Parser : public Lexicon{
   public:
+    Program *ast;
     Parser(string automatonFileName, string reservedWordsFileName)
     : Lexicon(automatonFileName, reservedWordsFileName, 211, 50){};
 
@@ -18,9 +21,9 @@ class Parser : public Lexicon{
     int currentToken = 0;
     void eat(string symbol);
     void programa();
-    void bloco();
-    void parteDeDeclaracoesDeRotulos();
-    void parteDeDefinicoesDeTipos();
+    Block *bloco();
+    vector<Number*> *parteDeDeclaracoesDeRotulos();
+    vector<BlockType*> *parteDeDefinicoesDeTipos();
     void definicaoDeTipo();
     void tipo();
     void indice();
@@ -46,6 +49,7 @@ class Parser : public Lexicon{
     void expressaoSimples();
     void termo();
     void fator();
+    void fatorAux();
     void variavel();
     void chamadaDeFuncao();
 

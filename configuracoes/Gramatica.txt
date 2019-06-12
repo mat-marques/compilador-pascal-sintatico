@@ -25,7 +25,6 @@
 7. <indice> ::= 
 	numero .. numero
 
-
 8. <parte de declaracoes de variaveis> ::=
 	var <declaracoes de variaveis>	
 		{; <declaracoes de variaveis>};
@@ -104,15 +103,18 @@
 	<fator> {(* | div | and) <fator>}
 
 29. <fator> ::=
-	<variavel>
-	|<chamada de funcoes>
+	identificador <fatorAux>
 	|(<expressoes>)
 	|not <fator>
+
+29.5. <fatorAux> ::=
+	[<lista de expressoes>]
+	| [(lista de expressoes)]
 
 30. <variavel> ::=
 	identificador [<lista de expressoes>]
 
 31. <chamada de funcao> ::=
-	identificador [(lista de expressoes)]
+	identificador [(<lista de expressoes>)]
 
 
