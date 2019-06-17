@@ -9,13 +9,14 @@
 #include "Function.h"
 #include "Type.h"
 #include "Variable.h"
+#include "Statement.h"
 
 using namespace std;
 
 class BlockType {
     public:
-        Variable v; Type t;
-        BlockType(Variable v, Type t) {
+        Variable *v; Type *t;
+        BlockType(Variable *v, Type *t) {
             this->v = v;
             this->t = t;
         };
@@ -23,8 +24,8 @@ class BlockType {
 
 class BlockVar {
     public:
-        vector<Variable> v; Type t;
-        BlockVar(vector<Variable> v, Type t) {
+        vector<Variable*> *v; Type *t;
+        BlockVar(vector<Variable*> *v, Type *t) {
             this->v = v;
             this->t = t;
         };
@@ -35,16 +36,14 @@ class Block {
         vector<Number*> *labels;
         vector<BlockType*> *varTypes;
         vector<BlockVar*> *varVariables;
-        vector<Procedure*> *procedures;
-        vector<Function*> *functions;
+        vector<DeclarationFunction*> *rotinas;
         vector<Statement*> *statements;
         
-        Block (vector<Number*> *labels, vector<BlockType*> *varTypes, vector<BlockVar*> *varVariables, vector<Procedure*> *procedures, vector<Function*> *functions, vector<Statement*> *statements) { 
+        Block (vector<Number*> *labels, vector<BlockType*> *varTypes, vector<BlockVar*> *varVariables, vector<DeclarationFunction*> *rotinas, vector<Statement*> *statements) { 
             this->labels = labels;
             this->varTypes = varTypes;
             this->varVariables = varVariables;
-            this->procedures = procedures;
-            this->functions = functions;
+            this->rotinas = rotinas;
             this->statements = statements;
         };
 };

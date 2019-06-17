@@ -5,10 +5,21 @@
 #include <string>
 #include <list>
 #include <vector>
-#include <sstream> 
+#include <iterator>
 #include "../lexico/Lexicon.h"
 #include "./AST/Program.h"
 #include "./AST/Number.h"
+#include "./AST/DeclarationFunction.h"
+#include "./AST/Statement.h"
+#include "./AST/Branch.h"
+#include "./AST/Loop.h"
+#include "./AST/Term.h"
+#include "./AST/Factor.h"
+#include "./AST/Expression.h"
+#include "./AST/Assign.h"
+#include "./AST/Branch.h"
+#include "./AST/StatementWithoutLabel.h"
+
 using namespace std;
 
 class Parser : public Lexicon{
@@ -20,38 +31,40 @@ class Parser : public Lexicon{
   private:
     int currentToken = 0;
     void eat(string symbol);
+
     void programa();
     Block *bloco();
     vector<Number*> *parteDeDeclaracoesDeRotulos();
     vector<BlockType*> *parteDeDefinicoesDeTipos();
-    void definicaoDeTipo();
-    void tipo();
-    void indice();
-    void parteDeDeclaracoesDeVariaveis();
-    void declaracoesDeVariaveis();
-    void listaDeIdentificadores();
-    void parteDeDeclaracoesDeSubRotinas();
-    void declaracaoDeProcedimento();
-    void declaracaoDeFuncao();
-    void parametrosFormais();
-    void secoesDeParametrosFormais();
-    void comandoComposto();
-    void comando();
-    void comandoSemRotulo();
-    void atribuicoes();
-    void chamadaDeProcedimentos();
-    void desvios();
-    void comandoCondicional();
-    void comandoRepetitivo();
-    void listaDeExpressoes();
-    void expressoes();
-    void relacao();
-    void expressaoSimples();
-    void termo();
-    void fator();
-    void fatorAux();
-    void variavel();
-    void chamadaDeFuncao();
+    BlockType *definicaoDeTipo();
+    Type *tipo();
+    vector<Number*> *indice();
+
+    vector<BlockVar*> *parteDeDeclaracoesDeVariaveis();
+    BlockVar *declaracoesDeVariaveis();
+    vector<Variable*> *listaDeIdentificadores();
+    vector<DeclarationFunction*> *parteDeDeclaracoesDeSubRotinas();
+    DeclarationFunction *declaracaoDeProcedimento();
+    DeclarationFunction *declaracaoDeFuncao();
+    vector<Variable*> *parametrosFormais();
+    vector<Variable*> *secoesDeParametrosFormais();
+    vector<Statement*> *comandoComposto();
+    Statement *comando();
+    StatementWithoutLabel *comandoSemRotulo();
+    Assign *atribuicoes();
+    Declaration *chamadaDeProcedimentos();
+    Number *desvios();
+    Branch *comandoCondicional();
+    Loop *comandoRepetitivo();
+    vector<Expression*> *listaDeExpressoes();
+    Expression *expressoes();
+    string relacao();
+    SimpleExpression *expressaoSimples();
+    Term *termo();
+    Factor *fator();
+    vector<Expression*> *fatorAux();
+    Declaration *variavel();
+    Declaration *chamadaDeFuncao();
 
 };
 

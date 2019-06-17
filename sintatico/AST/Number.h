@@ -7,8 +7,8 @@
 
 class Number{
     public:
-        int n;
-        Number (int n) { this->n = n; }
+        string n;
+        Number (string n) { this->n = n; }
 };
 
 #endif

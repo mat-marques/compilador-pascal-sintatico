@@ -11,8 +11,8 @@ using namespace std;
 
 class Declaration {
     public:
-        Variable v; Expression ex;
-        Declaration(Variable v, Expression ex) {
+        Variable *v; vector<Expression*> *ex;
+        Declaration(Variable *v, vector<Expression*> *ex) {
             this->v = v;
             this->ex = ex;
         };

@@ -5,16 +5,15 @@
 #include <string>
 #include <vector>
 #include "Expression.h"
-#include "Variable.h"
+#include "Declaration.h"
 
 using namespace std;
 
 class Assign {
     public:
-        Variable v1; vector<Expression> ex1List; Expression ex2;
-        Assign(Variable v1, vector<Expression> ex1List, Expression ex2) {
-            this->v1 = v1;
-            this->ex1List = ex1List;
+        Declaration *dec; Expression *ex2;
+        Assign(Declaration *dec, Expression *ex2) {
+            this->dec = dec;
             this->ex2 = ex2;
         };
 };

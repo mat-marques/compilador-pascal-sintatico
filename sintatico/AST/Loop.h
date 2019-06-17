@@ -5,14 +5,14 @@
 #include <string>
 #include <vector>
 #include "Expression.h"
-#include "Statement.h"
+#include "StatementWithoutLabel.h"
 
 using namespace std;
 
 class Loop {
     public:
-        Expression ex; Statement statement;
-        Loop(Expression ex, Statement statement){
+        Expression *ex; StatementWithoutLabel *statement;
+        Loop(Expression *ex, StatementWithoutLabel *statement){
             this->ex = ex;
             this->statement = statement;
         }

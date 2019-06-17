@@ -13,7 +13,7 @@
 	label numero {,numero};
 
 4. <parte de definicoes de tipos> ::=
-	type<definicao de tipo> {;<definicao de tipo>};
+	type <definicao de tipo> {;<definicao de tipo>};
 
 5. <definicao de tipo> ::=
 	identificador = <tipo>
@@ -104,6 +104,7 @@
 
 29. <fator> ::=
 	identificador <fatorAux>
+	| numero
 	|(<expressoes>)
 	|not <fator>
 

@@ -11,8 +11,8 @@ using namespace std;
 
 class Type {
     public:
-        Variable variable; vector<Number> numbers; vector<Type> types;
-        Type(Variable variable, vector<Number> numbers, vector<Type> types) {
+        Variable *variable; vector<Number*> *numbers; Type *types;
+        Type(Variable *variable, vector<Number*> *numbers, Type *types) {
             this->variable = variable;
             this->numbers = numbers;
             this->types = types;

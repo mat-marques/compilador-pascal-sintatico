@@ -9,10 +9,11 @@ using namespace std;
 
 class SimpleExpression {
     public:
-        string op; vector<Term> t1;
-        SimpleExpression(string op, vector<Term> t1) {
+        string op; Term*t1; SimpleExpression*simpleExpressions;
+        SimpleExpression(string op, Term *t1, SimpleExpression *simpleExpressions) {
             this->op = op;
             this->t1 = t1;
+            this->simpleExpressions = simpleExpressions;
         }
 };
 

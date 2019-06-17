@@ -9,8 +9,8 @@ using namespace std;
 
 class Term {
     public:
-        Factor f; vector<Factor> factorList;
-        Term(Factor f, vector<Factor> factorList){ 
+        Factor *f; vector<Factor*> *factorList;
+        Term(Factor *f, vector<Factor*> *factorList){ 
             this->f = f;
             this->factorList = factorList;
         };
