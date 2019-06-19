@@ -389,7 +389,7 @@ DeclarationFunction *Parser::declaracaoDeProcedimento(){
 DeclarationFunction *Parser::declaracaoDeFuncao(){
     Token *t;
 
-    Variable *functionName; vecotr<FormalParms*> *listParams; Variable *functionType; Block *block;
+    Variable *functionName; vector<FormalParms*> *listParams; Variable *functionType; Block *block;
 
     t = Lexicon::getTokenList(this->currentToken);
     if(t->var_value.compare("function") == 0) {
