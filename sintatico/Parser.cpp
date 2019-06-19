@@ -11,6 +11,18 @@ void Parser::eat(string symbol) {
 }
 
 
+void Parser::parsing(){
+    Lexicon::hashIdentifiers = new HashTable(211);
+    
+    programa();
+
+    //Printar a AST
+
+
+    //Printar a hashtable
+
+}
+
 void Parser::programa() {
     Token *t = Lexicon::getTokenList(this->currentToken);
     Variable *programName;
@@ -348,7 +360,7 @@ vector<DeclarationFunction*> *Parser::parteDeDeclaracoesDeSubRotinas(){
 DeclarationFunction *Parser::declaracaoDeProcedimento(){
     Token *t;
 
-    Variable *functionName; vector<Variable*> *listParams; Block *block;
+    Variable *functionName; vector<FormalParms*> *listParams; Block *block;
 
     t = Lexicon::getTokenList(this->currentToken);
     if(t->var_value.compare("procedure") == 0) {
@@ -377,7 +389,7 @@ DeclarationFunction *Parser::declaracaoDeProcedimento(){
 DeclarationFunction *Parser::declaracaoDeFuncao(){
     Token *t;
 
-    Variable *functionName; vector<Variable*> *listParams; Variable *functionType; Block *block;
+    Variable *functionName; vecotr<FormalParms*> *listParams; Variable *functionType; Block *block;
 
     t = Lexicon::getTokenList(this->currentToken);
     if(t->var_value.compare("function") == 0) {
@@ -392,7 +404,7 @@ DeclarationFunction *Parser::declaracaoDeFuncao(){
             listParams = parametrosFormais();
 
             t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value.compare(";") == 0) {
+            if(t->var_value.compare(":") == 0) {
                 eat(t->var_value);
 
                 t = Lexicon::getTokenList(this->currentToken);
@@ -416,25 +428,26 @@ DeclarationFunction *Parser::declaracaoDeFuncao(){
     return new DeclarationFunction(functionName, listParams, functionType, block);
 }
 
-vector<Variable*> *Parser::parametrosFormais(){
+vector<FormalParms*> *Parser::parametrosFormais(){
     Token *t = Lexicon::getTokenList(this->currentToken);
-    vector<Variable*> *params = NULL;
+
+    FormalParms *p;
+    vector<FormalParms*> *params = new vector<FormalParms*>();
+
     if(t->var_value.compare("(") == 0) {
         eat(t->var_value);
 
-        params = secoesDeParametrosFormais();
+        p = secoesDeParametrosFormais();
+        params->push_back(p);
 
         while(true){
             t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value.compare(";") == 0) {
+            if(t->var_value.compare(":") == 0) {
                 eat(t->var_value);
 
-                vector<Variable*> *paramsAux = secoesDeParametrosFormais();
-                params->insert(
-                    params->end(),
-                    std::make_move_iterator(paramsAux->begin()),
-                    std::make_move_iterator(paramsAux->end())
-                );
+                p = secoesDeParametrosFormais();
+                params->push_back(p);
+
             } else {
                 break;
             }
@@ -448,9 +461,10 @@ vector<Variable*> *Parser::parametrosFormais(){
     return params;
 }
 
-vector<Variable*> *Parser::secoesDeParametrosFormais(){
+FormalParms *Parser::secoesDeParametrosFormais(){
     Token *t = Lexicon::getTokenList(this->currentToken);
 
+    string op = "", type = "";
     vector<Variable*> *params = NULL;
 
     if(t->var_value.compare("var") == 0 || t->var_type.compare("IDENTIFICADOR") == 0) {
@@ -458,10 +472,11 @@ vector<Variable*> *Parser::secoesDeParametrosFormais(){
             eat(t->var_value);
         }
 
+        op = t->var_value;
         params = listaDeIdentificadores();
 
         t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare(";") == 0) {
+        if(t->var_value.compare(":") == 0) {
             eat(t->var_value);
         }
 
@@ -469,22 +484,18 @@ vector<Variable*> *Parser::secoesDeParametrosFormais(){
         if(t->var_type.compare("IDENTIFICADOR") == 0){
             eat(t->var_value);
 
-            if(params == NULL) {
-                params = new vector<Variable*>();
-                params->push_back(new Variable(t->var_value));
-            } else {
-                params->push_back(new Variable(t->var_value));
-            }
+            type = t->var_value;
 
         }
     }
     else if(t->var_value.compare("function") == 0) {
         eat(t->var_value);
 
+            op = t->var_value;
             params = listaDeIdentificadores();
 
             t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value.compare(";") == 0) {
+            if(t->var_value.compare(":") == 0) {
                 eat(t->var_value);
             }
 
@@ -492,22 +503,18 @@ vector<Variable*> *Parser::secoesDeParametrosFormais(){
             if(t->var_type.compare("IDENTIFICADOR") == 0){
                 eat(t->var_value);
 
-                if(params == NULL) {
-                    params = new vector<Variable*>();
-                    params->push_back(new Variable(t->var_value));
-                } else {
-                    params->push_back(new Variable(t->var_value));
-                }
+                type = t->var_value;
 
             }
     }
     else if(t->var_value.compare("procedure") == 0) {
         eat(t->var_value);
 
+        op = t->var_value;
         params = listaDeIdentificadores();
 
     }
-    return params;
+    return new FormalParms(op, params, type);
 }
 
 vector<Statement*> *Parser::comandoComposto(){
@@ -787,9 +794,8 @@ SimpleExpression *Parser::expressaoSimples(){
     Token *t = Lexicon::getTokenList(this->currentToken);
 
     string op, opAux;
-    Term *term = NULL, *TAux = NULL;
+    Term *term = NULL, *termAux = NULL;
     SimpleExpression *simpleEx = NULL, *simpleExAux1, *simpleExAux2;
-    bool firstTime;
 
     if(t->var_value == "+") {
         eat(t->var_value);
@@ -801,47 +807,47 @@ SimpleExpression *Parser::expressaoSimples(){
 
     term = termo();
 
-    
+    simpleEx = new SimpleExpression(op, term, NULL);
+    simpleExAux1 = simpleEx;
+
     while(true) {
 
         t = Lexicon::getTokenList(this->currentToken);
         if(t->var_value == "+") {
             eat(t->var_value);
             opAux = t->var_value;
-            TAux = termo();
+            termAux = termo();
         } else if(t->var_value == "-") {
             eat(t->var_value);
             opAux = t->var_value;
-            TAux = termo();
+            termAux = termo();
         } else if(t->var_value == "or") {
             eat(t->var_value);
             opAux = t->var_value;
-            TAux = termo();
+            termAux = termo();
         } else {
             break;
         }
 
-        //Cria uma lista ligada
-        if(firstTime) {
-            simpleEx = new SimpleExpression(opAux, TAux, NULL);
-            simpleExAux1 = simpleEx;
-        } else {
-            simpleExAux2 = new SimpleExpression(opAux, TAux, NULL);
-            simpleExAux1->simpleExpressions = simpleExAux2;
-        }
-        
-        TAux = NULL;
+
+        simpleExAux2 = new SimpleExpression(opAux, termAux, NULL);
+        simpleExAux1->simpleExpressions = simpleExAux2;
+        simpleExAux1 = simpleExAux2;
     }
 
-    return new SimpleExpression(op, term, simpleEx);
+    return simpleEx;
 }
 
 Term *Parser::termo(){
     Factor *f = NULL;
+    Term *term = NULL, *termAux1, *termAux2;
+    string op = "";
+    bool firstTime = true;
+
     f = fator();
 
-    vector<Factor*> *listF = new vector<Factor*>();
-    Factor *f = NULL;
+    term = new Term(f, "", NULL);
+    termAux1 = term;
 
     Token *t = Lexicon::getTokenList(this->currentToken);
     while(true) {
@@ -849,24 +855,29 @@ Term *Parser::termo(){
         if(t->var_value == "*") {
             eat(t->var_value);
             f = fator();
+            op = "*";
         } else if(t->var_value == "div") {
             eat(t->var_value);
             f = fator();
+            op = "div";
         } else if(t->var_value == "and") {
             eat(t->var_value);
             f = fator();
+            op = "and";
         } else {
             break;
         }
 
-        if(f != NULL){
-            listF->push_back(f);
-        }
+        //Cria uma lista ligada
+        termAux2 = new Term(f, "", NULL);
+        termAux1->t = termAux2;
+        termAux1->op = op;
+        termAux1 = termAux2;
 
         f = NULL;
     }
 
-    return new Term(f, listF);
+    return term;
 }
 
 Factor *Parser::fator(){

@@ -11,10 +11,10 @@ using namespace std;
 
 class Assign {
     public:
-        Declaration *dec; Expression *ex2;
-        Assign(Declaration *dec, Expression *ex2) {
+        Declaration *dec; Expression *ex;
+        Assign(Declaration *dec, Expression *ex) {
             this->dec = dec;
-            this->ex2 = ex2;
+            this->ex = ex;
         };
 };
 

@@ -11,16 +11,16 @@ using namespace std;
 
 class Factor {
     public:
-        Declaration *d1;
-        Number *n1;
-        Expression *ex1;
-        Factor *f1;
-        Factor(Declaration *d1, Number *n1, Expression *ex1, Factor *f1) {
-            this->d1 = d1;
-            this->n1 = n1;
-            this->ex1 = ex1;
-            this->f1 = f1;
-        }
+        Declaration *d;
+        Number *n;
+        Expression *ex;
+        Factor *f;
+        Factor(Declaration *d, Number *n, Expression *ex, Factor *f) {
+            this->d = d;
+            this->n = n;
+            this->ex = ex;
+            this->f = f;
+        };
 };
 
 

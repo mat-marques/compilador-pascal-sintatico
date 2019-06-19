@@ -9,10 +9,11 @@ using namespace std;
 
 class Term {
     public:
-        Factor *f; vector<Factor*> *factorList;
-        Term(Factor *f, vector<Factor*> *factorList){ 
+        Factor *f; string op; Term *t;
+        Term(Factor *f, string op, Term *t){ 
             this->f = f;
-            this->factorList = factorList;
+            this->op = op;
+            this->t = t;
         };
 };
 

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "Number.h";
+#include "Number.h"
 #include "StatementWithoutLabel.h"
 
 using namespace std;

@@ -9,12 +9,12 @@ using namespace std;
 
 class SimpleExpression {
     public:
-        string op; Term*t1; SimpleExpression*simpleExpressions;
-        SimpleExpression(string op, Term *t1, SimpleExpression *simpleExpressions) {
+        string op; Term* t; SimpleExpression* simpleExpressions;
+        SimpleExpression(string op, Term *t, SimpleExpression *simpleExpressions) {
             this->op = op;
-            this->t1 = t1;
+            this->t = t;
             this->simpleExpressions = simpleExpressions;
-        }
+        };
 };
 
 

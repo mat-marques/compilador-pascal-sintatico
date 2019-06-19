@@ -5,8 +5,6 @@
 #include <string>
 #include <vector>
 #include "Number.h"
-#include "Procedure.h"
-#include "Function.h"
 #include "Type.h"
 #include "Variable.h"
 #include "Statement.h"

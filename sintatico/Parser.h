@@ -17,8 +17,9 @@
 #include "./AST/Factor.h"
 #include "./AST/Expression.h"
 #include "./AST/Assign.h"
-#include "./AST/Branch.h"
 #include "./AST/StatementWithoutLabel.h"
+#include "./AST/FormalParams.h"
+
 
 using namespace std;
 
@@ -27,6 +28,7 @@ class Parser : public Lexicon{
     Program *ast;
     Parser(string automatonFileName, string reservedWordsFileName)
     : Lexicon(automatonFileName, reservedWordsFileName, 211, 50){};
+    void parsing();
 
   private:
     int currentToken = 0;
@@ -39,15 +41,14 @@ class Parser : public Lexicon{
     BlockType *definicaoDeTipo();
     Type *tipo();
     vector<Number*> *indice();
-
     vector<BlockVar*> *parteDeDeclaracoesDeVariaveis();
     BlockVar *declaracoesDeVariaveis();
     vector<Variable*> *listaDeIdentificadores();
     vector<DeclarationFunction*> *parteDeDeclaracoesDeSubRotinas();
     DeclarationFunction *declaracaoDeProcedimento();
     DeclarationFunction *declaracaoDeFuncao();
-    vector<Variable*> *parametrosFormais();
-    vector<Variable*> *secoesDeParametrosFormais();
+    vector<FormalParms*> *parametrosFormais();
+    FormalParms *secoesDeParametrosFormais();
     vector<Statement*> *comandoComposto();
     Statement *comando();
     StatementWithoutLabel *comandoSemRotulo();

@@ -45,7 +45,7 @@
 		
 13. <declaracao de funcao> ::=
 	function identificador
-		[<parametros formais>]; identificador;
+		[<parametros formais>]: identificador;
 		<bloco>
 
 14. <parametros formais> ::=
@@ -53,8 +53,8 @@
 	 {;<secoes de parametros formais>})
 
 15. <secoes de parametros formais> ::=
-	[var] <lista de identificadores>;identificador
-	| function <lista de identificadores>;identificador
+	[var] <lista de identificadores>:identificador
+	| function <lista de identificadores>:identificador
 	| procedure <lista de identificadores>
 
 16. <comando composto> ::=

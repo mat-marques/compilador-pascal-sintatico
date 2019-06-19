@@ -4,17 +4,17 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <Variable>
+#include "Variable.h"
 
 using namespace std;
 
 class FormalParms {
     public:
-        string wr; vector<Variable> variables; Variable v;
-        FormalParms(string wr, vector<Variable> variables, Variable v){
-            this->wr = wr;
+        string op; vector<Variable*> *variables; string type;
+        FormalParms(string op, vector<Variable*> *variables, string type){
+            this->op = op;
             this->variables = variables;
-            this->v = v;
+            this->type = type;
         };
         
 };

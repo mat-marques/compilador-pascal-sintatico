@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "Number.h";
+#include "Number.h"
 #include "Assign.h"
 #include "Declaration.h"
 #include "Branch.h"

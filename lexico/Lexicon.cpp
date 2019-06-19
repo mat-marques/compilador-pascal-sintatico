@@ -160,6 +160,7 @@ void Lexicon::process_lexicon(string inputFileName, string outPutHashFile, strin
 	this->hashIdentifiers->removeHashTable();
 	this->hashReservedWords->removeHashTable();
 
+	delete this->hashIdentifiers;
 	delete this->hashReservedWords;
 	inputFile.close();
 }

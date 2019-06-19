@@ -23,6 +23,8 @@ int main() {
 
    parser->process_lexicon("./testes/" + input, "./saida/" + output, "./saida/" + tokens);
 
+   parser->parsing();
+   
    cout << "fim ..." << endl;
    delete parser;
 
