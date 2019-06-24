@@ -155,6 +155,8 @@ void Lexicon::process_lexicon(string inputFileName, string outPutHashFile, strin
 	}
 
 	this->hashIdentifiers->show(outPutHashFile);
+	this->printTokens(tokensFileName);
+
 
 	this->deleteMatrix();
 	this->hashIdentifiers->removeHashTable();
@@ -163,6 +165,17 @@ void Lexicon::process_lexicon(string inputFileName, string outPutHashFile, strin
 	delete this->hashIdentifiers;
 	delete this->hashReservedWords;
 	inputFile.close();
+}
+
+void Lexicon::printTokens(string tokensFileName) {
+	ofstream tokenFile;
+  	tokenFile.open (tokensFileName);
+
+	for (std::list<Token*>::iterator it = this->tokens->begin(); it != this->tokens->end(); ++it){
+		tokenFile << (*it)->var_type << " " << (*it)->var_value << "\n";
+	}
+
+	tokenFile.close();
 }
 
 /*
@@ -400,6 +413,7 @@ Token *Lexicon::getTokenList(int index) {
 	for (std::list<Token*>::iterator it = this->tokens->begin(); it != this->tokens->end(); ++it){
     	if(count == index) {
 			return *it;
+			break;
 		}
 		count++;
 	}

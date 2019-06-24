@@ -109,11 +109,13 @@
 	|not <fator>
 
 29.5. <fatorAux> ::=
-	[<lista de expressoes>]
-	| [(lista de expressoes)]
+	<lista de expressoes>
+	| (<lista de expressoes>)
+	| vazio
 
 30. <variavel> ::=
-	identificador [<lista de expressoes>]
+	identificador
+	| identificador [<lista de expressoes>]
 
 31. <chamada de funcao> ::=
 	identificador [(<lista de expressoes>)]

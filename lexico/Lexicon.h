@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
+#include <iterator>
 #include "HashTable.h"
 #include "Token.h"
 
@@ -22,6 +22,7 @@ class Lexicon {
         Token *getTokenList(int index);
         
     private:
+        void printTokens(string tokensFileName);
         int **getMatrix();
         void deleteMatrix();
         void config_reserved_words(string reservedWordsFileName);

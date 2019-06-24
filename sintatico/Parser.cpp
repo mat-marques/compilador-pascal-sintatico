@@ -2,12 +2,12 @@
 
 void Parser::eat(string symbol) {
     Token *t = Lexicon::getTokenList(this->currentToken);
+    cout << t->var_value << endl;
     if(t->var_value.compare(symbol) == 0) {
-        this->currentToken++;
+        this->currentToken = this->currentToken + 1;
     } else {
-            cout << "erro sintático: " << t->var_value << " linha: " << t->row << " coluna:"<< t->col << endl;
+            cout << "erro sintático: " << t->var_value << " linha: " << t->row << " coluna:"<< t->col + 1<< endl;
     }
-    this->currentToken++;
 }
 
 
@@ -17,27 +17,46 @@ void Parser::parsing(){
     programa();
 
     //Printar a AST
-
+    printAst("../saida/ast.txt");
 
     //Printar a hashtable
-
+    //Lexicon::hashIdentifiers->show("../saida/tabelaDeSimbolos.txt");
 }
+
+void Parser::printAst(string astFileName) {
+    ofstream astFile;
+  	astFile.open (astFileName);
+
+  	astFile << "Árvore Abstrata Sintática" << "\n\n";
+
+    if(this->ast->programName != NULL)
+    	astFile << this->ast->programName->variable << " ";
+
+    if(this->ast->listVariables != NULL){
+        for (std::vector<Variable*>::iterator it = this->ast->listVariables->begin(); it != this->ast->listVariables->end(); ++it) {
+            astFile << (*it)->variable << " ";
+        }
+    }
+
+    astFile.close();
+}
+
 
 void Parser::programa() {
     Token *t = Lexicon::getTokenList(this->currentToken);
-    Variable *programName;
-    vector<Variable*> *listVariables; 
-    Block *block;
+    Variable *programName = NULL;
+    vector<Variable*> *listVariables = NULL; 
+    Block *block = NULL;
 
     if(t->var_value.compare("program") == 0){
         eat(t->var_value);
         
         t = Lexicon::getTokenList(this->currentToken);
         if(t->var_type.compare("IDENTIFICADOR") == 0){
+            eat(t->var_value);
 
             programName = new Variable(t->var_value);
-            
-            eat(t->var_value);
+
             t = Lexicon::getTokenList(this->currentToken);
 
             if(t->var_value == "(") {
@@ -60,17 +79,31 @@ void Parser::programa() {
 
                         if(t->var_value == ".") {
                             eat(t->var_value);
+                        } else {
+                            eat(t->var_value);
                         }
+                    } else {
+                        eat(";");
                     }
+                } else {
+                    eat(")");
                 }
+                
+            } else {
+                eat("(");
             }
+        } else {
+            eat("IDENTIFICADOR");
         }
+    } else {
+        eat("program");
     }
 
     this->ast = new Program(programName, listVariables, block);
 }
 
 Block *Parser::bloco(){
+    cout << "Bloco" << endl;
     vector<Number*> *labels = parteDeDeclaracoesDeRotulos();
     vector<BlockType*> *types = parteDeDefinicoesDeTipos();
     vector<BlockVar*> *variables = parteDeDeclaracoesDeVariaveis();
@@ -81,6 +114,7 @@ Block *Parser::bloco(){
 }
 
 vector<Number*> *Parser::parteDeDeclaracoesDeRotulos() {
+    cout << "parteDeDeclaracoesDeRotulos" << endl;
     Token *t = Lexicon::getTokenList(this->currentToken);
  
     vector<Number*> *labels = new vector<Number*>();
@@ -94,36 +128,47 @@ vector<Number*> *Parser::parteDeDeclaracoesDeRotulos() {
             
             labels->push_back(new Number(t->var_value));
 
-        }
-
-        while(true){
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value.compare(",") == 0) {
-                eat(t->var_value);
-
+            //ParteDeDeclaracoesDeRotulosAux
+            while(true){
                 t = Lexicon::getTokenList(this->currentToken);
-                if(t->var_type.compare("NUMERO") == 0){
+                if(t->var_value.compare(",") == 0) {
                     eat(t->var_value);
 
-                    labels->push_back(new Number(t->var_value));
+                    t = Lexicon::getTokenList(this->currentToken);
+                    if(t->var_type.compare("NUMERO") == 0){
+                        eat(t->var_value);
 
+                        labels->push_back(new Number(t->var_value));
+
+                    }
+
+                } else {
+                    break;
                 }
-
-            } else {
-                break;
             }
+
+        } 
+        else {
+            return NULL;
         }
 
         t = Lexicon::getTokenList(this->currentToken);
         if(t->var_value.compare(";") == 0) {
             eat(t->var_value);
         }
+        else {
+            return NULL;
+        }
+    }
+    else {
+        return NULL;
     }
 
     return labels;
 }
 
 vector<BlockType*> *Parser::parteDeDefinicoesDeTipos() {
+    cout << "parteDeDefinicoesDeTipos" << endl;
     Token *t = Lexicon::getTokenList(this->currentToken);
     
     vector<BlockType*> *types = new vector<BlockType*>();
@@ -133,6 +178,7 @@ vector<BlockType*> *Parser::parteDeDefinicoesDeTipos() {
 
         types->push_back(definicaoDeTipo());
 
+        //ParteDeDefinicoesDeTiposAux
         while(true){
             t = Lexicon::getTokenList(this->currentToken);
             if(t->var_value.compare(";") == 0) {
@@ -145,15 +191,19 @@ vector<BlockType*> *Parser::parteDeDefinicoesDeTipos() {
             }
         }
 
-    } 
+    }
+    else {
+        return NULL;
+    }
     return types;
 }
 
 BlockType *Parser::definicaoDeTipo() {
+    cout << "definicaoDeTipo" << endl;
     Token *t = Lexicon::getTokenList(this->currentToken);
 
-    Type *ntype;
-    Variable *variable;
+    Type *ntype = NULL;
+    Variable *variable = NULL;
 
     t = Lexicon::getTokenList(this->currentToken);
     if(t->var_type.compare("IDENTIFICADOR") == 0){
@@ -168,11 +218,18 @@ BlockType *Parser::definicaoDeTipo() {
             ntype = tipo();
 
         }
+        else {
+            return NULL;
+        }
+    }
+    else {
+        return NULL;
     }
     return new BlockType(variable, ntype);
 }
 
 Type *Parser::tipo() {
+    cout << "Tipo" << endl;
     Token *t = Lexicon::getTokenList(this->currentToken);
     
     vector<Number*> *indices = NULL;
@@ -186,37 +243,60 @@ Type *Parser::tipo() {
     else if(t->var_value.compare("array") == 0) {
         eat(t->var_value);
 
-        indices = indice();
-
-        while(true){
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value.compare(",") == 0) {
-                eat(t->var_value);
-
-                vector<Number*> *indicesAux = indice();
-                indices->insert(
-                    indices->end(),
-                    std::make_move_iterator(indicesAux->begin()),
-                    std::make_move_iterator(indicesAux->end())
-                );
-
-            } else {
-                break;
-            }
-        }
-
         t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare("of") == 0) {
+        if(t->var_value.compare("[") == 0) {
             eat(t->var_value);
 
-            newtype = tipo();
+            indices = indice();
 
+
+            while(true){
+                t = Lexicon::getTokenList(this->currentToken);
+                if(t->var_value.compare(",") == 0) {
+                    eat(t->var_value);
+
+                    vector<Number*> *indicesAux = indice();
+                    indices->insert(
+                        indices->end(),
+                        std::make_move_iterator(indicesAux->begin()),
+                        std::make_move_iterator(indicesAux->end())
+                    );
+
+                } else {
+                    break;
+                }
+            }
+
+            t = Lexicon::getTokenList(this->currentToken);
+            if(t->var_value.compare("of") == 0) {
+                eat(t->var_value);
+
+                newtype = tipo();
+
+                t = Lexicon::getTokenList(this->currentToken);
+                if(t->var_value.compare("]") == 0) {
+                    eat(t->var_value);
+                }
+                else {
+                    return NULL;
+                }
+            }
+            else {
+                return NULL;
+            }
         }
+        else {
+            return NULL;
+        }
+    }
+    else {
+        return NULL;
     }
     return new Type(variable, indices, newtype);
 }
 
 vector<Number*> *Parser::indice() {
+    cout << "Indice" << endl;
     Token *t;
     vector<Number*> *indices = new vector<Number*>();
 
@@ -237,13 +317,22 @@ vector<Number*> *Parser::indice() {
                 indices->push_back(new Number(t->var_value));
 
             }
+            else {
+                return NULL;
+            }
             
+        }  
+        else {
+            return NULL;
         }
+    } else {
+        return NULL;
     }
     return indices;
 }
 
 vector<BlockVar*> *Parser::parteDeDeclaracoesDeVariaveis() {
+    cout << "parteDeDeclaracoesDeVariaveis" << endl;
     Token *t;
 
     vector<BlockVar*> *listV = new vector<BlockVar*>();
@@ -271,10 +360,14 @@ vector<BlockVar*> *Parser::parteDeDeclaracoesDeVariaveis() {
             }
         }
     }
+    else {
+        return NULL;
+    }
     return listV;
 }
 
 BlockVar *Parser::declaracoesDeVariaveis() {
+    cout << "declaracoesDeVariaveis" << endl;
     Token *t;
 
     vector<Variable*> *listaID = listaDeIdentificadores();
@@ -287,10 +380,14 @@ BlockVar *Parser::declaracoesDeVariaveis() {
         p = tipo();
 
     }
+    else {
+        return NULL;
+    }
     return new BlockVar(listaID, p);
 }
 
 vector<Variable*> *Parser::listaDeIdentificadores(){
+    cout << "listaDeIdentificadores" << endl;
     Token *t;
     vector<Variable*> *listVariables = new vector<Variable*>();
     t = Lexicon::getTokenList(this->currentToken);
@@ -317,10 +414,14 @@ vector<Variable*> *Parser::listaDeIdentificadores(){
             }
         }
     }
+    else {
+        return NULL;
+    }
     return listVariables;
 }
 
 vector<DeclarationFunction*> *Parser::parteDeDeclaracoesDeSubRotinas(){
+    cout << "parteDeDeclaracoesDeSubRotinas" << endl;
     Token *t;
 
     vector<DeclarationFunction*> *rotinas = new vector<DeclarationFunction*>();
@@ -354,10 +455,15 @@ vector<DeclarationFunction*> *Parser::parteDeDeclaracoesDeSubRotinas(){
         }
     }
 
+    if(rotinas->size() == 0) {
+        return NULL;
+    }
+
     return rotinas;
 }
 
 DeclarationFunction *Parser::declaracaoDeProcedimento(){
+    cout << "declaracaoDeProcedimento" << endl;
     Token *t;
 
     Variable *functionName; vector<FormalParms*> *listParams; Block *block;
@@ -380,13 +486,23 @@ DeclarationFunction *Parser::declaracaoDeProcedimento(){
                 
                 block = bloco();
             }
+            else {
+                return NULL;
+            }
 
+        } 
+        else {
+            return NULL;
         }
+    }
+    else {
+        return NULL;
     }
     return new DeclarationFunction(functionName, listParams, NULL, block);
 }
 
 DeclarationFunction *Parser::declaracaoDeFuncao(){
+    cout << "declaracaoDeFuncao" << endl;
     Token *t;
 
     Variable *functionName; vector<FormalParms*> *listParams; Variable *functionType; Block *block;
@@ -420,15 +536,32 @@ DeclarationFunction *Parser::declaracaoDeFuncao(){
                         block = bloco();
 
                     }
+                    else {
+                        return NULL;
+                    }
                 }
+                else {
+                    return NULL;
+                }
+            }
+            else {
+                return NULL;
             }
     
         }
+        else {
+            return NULL;
+        }
+    }
+    else {
+        return NULL;
     }
     return new DeclarationFunction(functionName, listParams, functionType, block);
 }
 
+
 vector<FormalParms*> *Parser::parametrosFormais(){
+    cout << "parametrosFormais" << endl;
     Token *t = Lexicon::getTokenList(this->currentToken);
 
     FormalParms *p;
@@ -457,11 +590,18 @@ vector<FormalParms*> *Parser::parametrosFormais(){
         if(t->var_value.compare(")") == 0) {
             eat(t->var_value);
         }
+        else {
+            return NULL;
+        }
+    }
+    else {
+        return NULL;
     }
     return params;
 }
 
 FormalParms *Parser::secoesDeParametrosFormais(){
+    cout << "secoesDeParametrosFormais" << endl;
     Token *t = Lexicon::getTokenList(this->currentToken);
 
     string op = "", type = "";
@@ -478,14 +618,17 @@ FormalParms *Parser::secoesDeParametrosFormais(){
         t = Lexicon::getTokenList(this->currentToken);
         if(t->var_value.compare(":") == 0) {
             eat(t->var_value);
+
+            t = Lexicon::getTokenList(this->currentToken);
+            if(t->var_type.compare("IDENTIFICADOR") == 0){
+                eat(t->var_value);
+
+                type = t->var_value;
+
+            }
         }
-
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_type.compare("IDENTIFICADOR") == 0){
-            eat(t->var_value);
-
-            type = t->var_value;
-
+        else {
+            return NULL;
         }
     }
     else if(t->var_value.compare("function") == 0) {
@@ -497,15 +640,19 @@ FormalParms *Parser::secoesDeParametrosFormais(){
             t = Lexicon::getTokenList(this->currentToken);
             if(t->var_value.compare(":") == 0) {
                 eat(t->var_value);
+
+                t = Lexicon::getTokenList(this->currentToken);
+                if(t->var_type.compare("IDENTIFICADOR") == 0){
+                    eat(t->var_value);
+
+                    type = t->var_value;
+
+                }
+            }
+            else {
+                return NULL;
             }
 
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_type.compare("IDENTIFICADOR") == 0){
-                eat(t->var_value);
-
-                type = t->var_value;
-
-            }
     }
     else if(t->var_value.compare("procedure") == 0) {
         eat(t->var_value);
@@ -513,11 +660,18 @@ FormalParms *Parser::secoesDeParametrosFormais(){
         op = t->var_value;
         params = listaDeIdentificadores();
 
+        if(params == NULL)
+            return NULL;
+
+    }
+    else {
+        return NULL;
     }
     return new FormalParms(op, params, type);
 }
 
 vector<Statement*> *Parser::comandoComposto(){
+    cout << "comandoComposto" << endl;
     Token *t = Lexicon::getTokenList(this->currentToken);
     
     vector<Statement*> *st = NULL;
@@ -529,32 +683,36 @@ vector<Statement*> *Parser::comandoComposto(){
         st = new vector<Statement*>();
 
         s = comando();
-        
-        st->push_back(s);
+        if(s != NULL){
+            st->push_back(s);
 
-        while(true){
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value.compare(";") == 0) {
-                eat(t->var_value);
+            while(true){
+                t = Lexicon::getTokenList(this->currentToken);
+                if(t->var_value.compare(";") == 0) {
+                    eat(t->var_value);
 
-                s = comando();
+                    s = comando();
 
-                st->push_back(s);
+                    st->push_back(s);
 
-            } else {
-                break;
+                } else {
+                    break;
+                }
             }
         }
-
         t = Lexicon::getTokenList(this->currentToken);
         if(t->var_value.compare("end") == 0) {
             eat(t->var_value);
+        }
+        else {
+            return NULL;
         }
     }
     return st;
 }
 
 Statement *Parser::comando(){
+    cout << "comando" << endl;
     Token *t;
     
     Number *n = NULL; StatementWithoutLabel *st = NULL;
@@ -570,17 +728,21 @@ Statement *Parser::comando(){
             eat(t->var_value);
 
             st = comandoSemRotulo();
-        
+            if(st == NULL)
+                return NULL;
         }
 
     } else {
         st = comandoSemRotulo();
+        if(st == NULL)
+            return NULL;
     }
 
     return new Statement(n , st);
 }
 
 StatementWithoutLabel *Parser::comandoSemRotulo(){
+    cout << "comandoSemRotulo" << endl;
     Token *t;
 
     Assign *assign = NULL;
@@ -592,32 +754,46 @@ StatementWithoutLabel *Parser::comandoSemRotulo(){
 
     t = Lexicon::getTokenList(this->currentToken);
     if(t->var_type.compare("IDENTIFICADOR") == 0){
+        
+        //Revisar essa parte da gramática
         t = Lexicon::getTokenList(this->currentToken + 1);
-        if(t->var_value.compare("[") == 0) {
+        if(t->var_value.compare(":=") == 0 || t->var_value.compare("(") != 0) {
             assign = atribuicoes();
         }
         else {
             if(t->var_value.compare("(") == 0) {
                 declaration = chamadaDeFuncao();
             }
+            else {
+                return NULL;
+            }
         }
     }
     else if(t->var_value.compare("goto") == 0) {
         goto_ = desvios();
+        if(goto_ == NULL)
+            return NULL;
     }
     else if(t->var_value.compare("begin") == 0) {
         statements = comandoComposto();
+        if(statements == NULL)
+            return NULL;
     }
     else if(t->var_value.compare("if") == 0) {
         branch = comandoCondicional();
+        if(branch == NULL)
+            return NULL;
     }
     else {
         loop = comandoRepetitivo();
+        if(loop == NULL)
+            return NULL;
     }
     return new StatementWithoutLabel(assign, declaration, goto_, statements, branch, loop);
 }
 
 Assign *Parser::atribuicoes(){
+    cout << "atribuicoes" << endl;
     Token *t;
     Expression *ex;
     Declaration *dec = variavel();
@@ -629,10 +805,14 @@ Assign *Parser::atribuicoes(){
         ex = expressoes();
     
     }
+    else {
+        return NULL;
+    }
     return new Assign(dec, ex);
 }
 
 Declaration *Parser::chamadaDeProcedimentos(){
+    cout << "chamadaDeProcedimentos" << endl;
     Token *t;
     Variable *v = NULL;
     vector<Expression*> *exs = NULL;
@@ -652,12 +832,22 @@ Declaration *Parser::chamadaDeProcedimentos(){
             if(t->var_value == ")") {
                 eat(t->var_value);
             }
+            else {
+                return NULL;
+            }
         }
+        else {
+            return NULL;
+        }
+    }
+    else {
+        return NULL;
     }
     return new Declaration(v, exs);
 }
 
 Number *Parser::desvios(){
+    cout << "desvio" << endl;
     Token *t = Lexicon::getTokenList(this->currentToken);
 
     Number *n= NULL;
@@ -672,10 +862,14 @@ Number *Parser::desvios(){
 
         }
     }
+    else {
+        return NULL;
+    }
     return n;
 }
 
 Branch *Parser::comandoCondicional(){
+    cout << "comandoCondicional" << endl;
     Token *t = Lexicon::getTokenList(this->currentToken);
 
     Expression *ex = NULL; StatementWithoutLabel *st1 = NULL; StatementWithoutLabel *st2 = NULL;
@@ -699,12 +893,19 @@ Branch *Parser::comandoCondicional(){
             
             }
         }
+        else {
+            return NULL;
+        }
+    }
+    else {
+        return NULL;
     }
 
     return new Branch(ex, st1, st2);
 }
 
 Loop *Parser::comandoRepetitivo(){
+    cout << "comandoRepetitivo" << endl;
     Token *t = Lexicon::getTokenList(this->currentToken);
 
     Expression *ex = NULL; StatementWithoutLabel *st1 = NULL;
@@ -721,13 +922,20 @@ Loop *Parser::comandoRepetitivo(){
             st1 = comandoSemRotulo();
         
         }
+        else {
+            return NULL;
+        }
+    }
+    else {
+        return NULL;
     }
 
     return new Loop(ex, st1);
 }
 
 vector<Expression*> *Parser::listaDeExpressoes(){
-    vector<Expression*> *listEx = NULL;
+    cout << "listaDeExpressoes" << endl;
+    vector<Expression*> *listEx = new vector<Expression*>();
     Expression *ex = NULL;
 
     ex = expressoes();
@@ -753,44 +961,49 @@ vector<Expression*> *Parser::listaDeExpressoes(){
             break;
         }
     }
-
+    if(listEx->size() == 0)
+        return NULL;
     return listEx;
 }
 
 Expression *Parser::expressoes(){
+    cout << "expressao" << endl;
     SimpleExpression *simpleEx1 = expressaoSimples();
     string s = relacao();
     SimpleExpression *simpleEx2 = expressaoSimples();
-
+    if(simpleEx1 == NULL)
+        return NULL;
     return new Expression(simpleEx1, s, simpleEx2);
 }
 
 string Parser::relacao(){
+    cout << "relacao" << endl;
     Token *t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value == "=") {
+    if(t->var_value.compare("=") == 0) {
         eat(t->var_value);
         return "=";
-    } else if(t->var_value == "<>") {
+    } else if(t->var_value.compare("<>") == 0) {
         eat(t->var_value);
         return "<>";
-    } else if(t->var_value == "<") {
+    } else if(t->var_value.compare("<") == 0) {
         eat(t->var_value);
         return "<";
-    } else if(t->var_value == "<=") {
+    } else if(t->var_value.compare("<=") == 0) {
         eat(t->var_value);
         return "<=";
-    } else if(t->var_value == ">") {
+    } else if(t->var_value.compare(">") == 0) {
         eat(t->var_value);
         return ">";
-    } else if(t->var_value == ">=") {
+    } else if(t->var_value.compare(">=") == 0) {
         eat(t->var_value);
         return ">=";
     } else {
-        return NULL;
+        return "";
     }
 }
 
 SimpleExpression *Parser::expressaoSimples(){
+    cout << "expressaoSimples" << endl;
     Token *t = Lexicon::getTokenList(this->currentToken);
 
     string op, opAux;
@@ -806,6 +1019,9 @@ SimpleExpression *Parser::expressaoSimples(){
     }
 
     term = termo();
+
+    if(term == NULL)
+    	return NULL;
 
     simpleEx = new SimpleExpression(op, term, NULL);
     simpleExAux1 = simpleEx;
@@ -839,12 +1055,15 @@ SimpleExpression *Parser::expressaoSimples(){
 }
 
 Term *Parser::termo(){
+    cout << "termo" << endl;
     Factor *f = NULL;
     Term *term = NULL, *termAux1, *termAux2;
     string op = "";
-    bool firstTime = true;
 
     f = fator();
+
+    if(f == NULL)
+        return NULL;
 
     term = new Term(f, "", NULL);
     termAux1 = term;
@@ -881,6 +1100,7 @@ Term *Parser::termo(){
 }
 
 Factor *Parser::fator(){
+    cout << "fator" << endl;
     Token *t;
     Variable *v;
     Declaration *d1 = NULL; Number *n1 = NULL; Expression *ex1 = NULL; Factor *f1 = NULL;
@@ -904,43 +1124,62 @@ Factor *Parser::fator(){
         eat(t->var_value);
         
         ex1 = expressoes();
-        
+        if(ex1 == NULL)
+            return NULL;
+
         if(t->var_value.compare(")") == 0) {
             eat(t->var_value);
+        } else {
+            return NULL;
         }
     }
     else if(t->var_value == "not") {
         eat(t->var_value);
 
         f1 = fator();
-    
-    }
 
+        if(f1 == NULL)
+            return NULL;
+    }
+    else {
+    	return NULL;
+    }
     return new Factor(d1, n1, ex1, f1);
 }
 
 vector<Expression*> *Parser::fatorAux() {
+    cout << "fatorAux" << endl;
     Token *t = Lexicon::getTokenList(this->currentToken);
     vector<Expression*> *exs = NULL;
-    if(t->var_value.compare("(") != 0){
 
-        exs = listaDeExpressoes();
-    
-    } else {
-        if(t->var_value.compare("(") == 0) {
-            eat(t->var_value);
-    
-            exs = listaDeExpressoes();
+	if(t->var_value.compare("(") == 0) {
+		eat(t->var_value);
 
-            if(t->var_value.compare(")") == 0) {
-                eat(t->var_value);
-            }
-        }
-    }
+		exs = listaDeExpressoes();
+
+		t = Lexicon::getTokenList(this->currentToken);
+		if(t->var_value.compare(")") == 0) {
+			eat(t->var_value);
+		} else {
+			return NULL;
+		}
+	} else {
+		if(t->var_value.compare("+") == 0 || t->var_value.compare("-") == 0 ||
+		   t->var_type.compare("NUMERO") == 0 || t->var_type.compare("IDENTIFICADOR") == 0 ||
+		   t->var_type.compare("(") == 0 || t->var_value.compare("not") == 0) {
+			exs = listaDeExpressoes();
+		} else {
+			return NULL;
+		}
+	}
+
+    if(exs == NULL)
+        return NULL;
     return exs;
 }
 
 Declaration *Parser::variavel(){
+    cout << "variavel" << endl;
     Token *t;
     Variable *v = NULL;
     vector<Expression*> *exs = NULL;
@@ -953,10 +1192,14 @@ Declaration *Parser::variavel(){
         exs = listaDeExpressoes();
     
     }
+    else {
+        return NULL;
+    }
     return new Declaration(v, exs);
 }
 
 Declaration *Parser::chamadaDeFuncao(){
+    cout << "chamadaDeFuncao" << endl;
     Token *t;
     Variable *v = NULL;
     vector<Expression*> *exs = NULL;
@@ -976,8 +1219,17 @@ Declaration *Parser::chamadaDeFuncao(){
             if(t->var_value == ")") {
                 eat(t->var_value);
             }
+            else {
+                return NULL;
+            }
+        }
+        else {
+            return NULL;
         }
 
+    }
+    else {
+        return NULL;
     }
     return new Declaration(v, exs);
 }

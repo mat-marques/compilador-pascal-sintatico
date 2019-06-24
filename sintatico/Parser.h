@@ -7,18 +7,7 @@
 #include <vector>
 #include <iterator>
 #include "../lexico/Lexicon.h"
-#include "./AST/Program.h"
-#include "./AST/Number.h"
-#include "./AST/DeclarationFunction.h"
-#include "./AST/Statement.h"
-#include "./AST/Branch.h"
-#include "./AST/Loop.h"
-#include "./AST/Term.h"
-#include "./AST/Factor.h"
-#include "./AST/Expression.h"
-#include "./AST/Assign.h"
-#include "./AST/StatementWithoutLabel.h"
-#include "./AST/FormalParams.h"
+#include "AST.h"
 
 
 using namespace std;
@@ -33,6 +22,7 @@ class Parser : public Lexicon{
   private:
     int currentToken = 0;
     void eat(string symbol);
+    void printAst(string astFileName);
 
     void programa();
     Block *bloco();

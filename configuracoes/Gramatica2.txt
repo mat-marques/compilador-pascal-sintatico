@@ -1,0 +1,115 @@
+Programa -> program IDENTIFICADOR ( ListaDeIdentificadores );
+	    Bloco.
+
+Bloco -> ParteDeDeclaracoesDeRotulos
+		ParteDeDefinicoesDeTipos
+		ParteDeDeclaracoesDeVariaveis
+		ParteDeDeclaracoesDeSubRotina
+		ComandoComposto
+
+ParteDeDeclaracoesDeRotulos -> label NUMERO ParteDeDeclaracoesDeRotulosAux ; | VAZIO
+
+ParteDeDeclaracoesDeRotulosAux -> , NUMERO ParteDeDeclaracoesDeRotulosAux | VAZIO
+
+ParteDeDefinicoesDeTipos -> type DefinincaoDeTipo ParteDeDefinicoesDeTiposAux ; | VAZIO
+
+ParteDeDefinicoesDeTiposAux -> ; DefinincaoDeTipo ParteDeDefinicoesDeTiposAux | VAZIO
+
+DefinicaoDeTipo -> IDENTIFICADOR = Tipo
+
+Tipo -> IDENTIFICADOR | array TipoAux1 of Tipo
+
+TipoAux1 -> [ Indice TipoAux2 ] | VAZIO
+
+TipoAux2 -> , Indice TipoAux2 | VAZIO
+
+Indice -> NUMERO .. NUMERO
+
+ParteDeDeclaracoesDeVariaveis -> var DeclaracaoDeVariaveis ParteDeDeclaracoesDeVariaveisAux
+
+ParteDeDeclaracoesDeVariaveisAux -> ; DeclaracaoDeVariaveis ParteDeDeclaracoesDeVariaveisAux | VAZIO
+
+DeclaracoesDeVariaveis -> ListaDeIdentificadores : Tipo
+
+ListaDeIdentificadores -> IDENTIFICADOR ListaDeIdentificadoresAux
+
+ListaDeIdentificadoresAux -> , IDENTIFICADOR ListaDeIdentificadoresAux | VAZIO
+
+ParteDeDeclaracoesDeSubRotinas -> DeclaracaoDeProcedimento ParteDeDeclaracoesDeSubRotinasAux | DeclaracaoDeFuncao ParteDeDeclaracoesDeSubRotinas
+
+ParteDeDeclaracoesDeSubRotinasAux -> ; ParteDeDeclaracoesDeSubRotinasAux2 ParteDeDeclaracoesDeSubRotinasAux | VAZIO
+
+ParteDeDeclaracoesDeSubRotinasAux2 -> DeclaracaoDeProcedimento | DeclaracaoDeFuncao | VAZIO
+
+DeclaracaoDeProcedimentos -> procedure IDENTIFICADOR ParametrosFormais ; Bloco
+
+DeclaracaoDeProcedimentos -> function IDENTIFICADOR ParametrosFormais : IDENTIFICADOR ; Bloco
+
+ParametrosFormais -> ( SecaoDeParametrosFormais ParametrosFormaisAux )
+
+ParametrosFormaisAux -> ; SecaoDeParametrosFormais ParametrosFormaisAux | VAZIO
+
+SecaoDeParametrosFormais -> var ListaDeIdenficadores : IDENTIFICADOR |
+function ListaDeIdenficadores : IDENTIFICADOR | procedure ListaDeIdenficadores |
+ListaDeIdenficadores : IDENTIFICADOR
+
+ComandoComposto -> begin Comando ComandoCompostoAux end
+
+ComandoCompostoAux -> ; Comando ComandoCompostoAux | VAZIO
+
+Comando -> NUMERO : ComandoSemRotulo | ComandoSemRotulo
+
+ComandoSemRotulo -> Atribuicao | ChamadaDeProcedimentos | Desvio | ComandoComposto
+| ComandoCondicional | ComandoRepetitivo
+
+Atribuicao -> Variavel ATRIBUICAO Expressao
+
+ChamadaDeProcedimentos -> IDENTIFICADOR ChamadaDeProcedimentosAux
+
+ChamadaDeProcedimentosAux -> ( ListaDeExpressoes ) | VAZIO
+
+Desvio -> goto NUMERO
+
+ComandoCondicional -> if Expressao then ComandoSemRotulo ComandoCondicionalAux
+
+ComandoCondicionalAux -> else ComandoSemRotulo | VAZIO
+
+ComandoRepetitivo -> while Expressao do ComandoSemRotulo
+
+ListaDeExpressoes -> Expressao ListaDeExpressoesAux
+
+ListaDeExpressoesAux -> , Expressao | VAZIO
+
+Expressao -> ExpressaoSimples ExpressaoAux
+
+ExpressaoAux -> Relacao ExpressaoSimples | VAZIO
+
+Relacao -> = | <> | < | <= | >= | >
+
+ExpressaoSimples -> + Termo ExpressaoSimplesAux | - Termo ExpressaoSimplesAux | Termo ExpressaoSimplesAux
+
+ExpressaoSimplesAux -> + Termo ExpressaoSimplesAux | - Termo ExpressaoSimplesAux | OR Termo ExpressaoSimplesAux | VAZIO
+
+Termo -> Fator TermoAux
+
+TermoAux -> * Fator TermoAux | div Fator TermoAux | and Fator TermoAux | VAZIO
+
+Fator -> Variavel | NUMERO | ChamadaDeFuncao | ( Expressao ) | not Fator 
+
+Variavel -> VariavelChamadaDeFuncaoAux VariavelAux
+VariavelAux -> ListaDeExpressoes | VAZIO
+
+ChamadaDeFuncao -> VariavelChamadaDeFuncaoAux ChamadaDeFuncaoAux
+ChamadaDeFuncaoAux -> ( ListaDeExpressoes ) | VAZIO
+
+VariavelChamadaDeFuncaoAux -> IDENTIFICADOR
+
+
+
+
+
+
+
+
+
+

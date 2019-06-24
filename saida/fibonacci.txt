@@ -1,0 +1,8 @@
+Lista 11, Posicao: 1, Palavra: fib1
+Lista 12, Posicao: 1, Palavra: fib2
+Lista 53, Posicao: 1, Palavra: fibonacci
+Lista 101, Posicao: 1, Palavra: integer
+Lista 105, Posicao: 1, Palavra: i
+Lista 110, Posicao: 1, Palavra: n
+Lista 165, Posicao: 1, Palavra: recursiveFibonacci
+Lista 176, Posicao: 1, Palavra: write
