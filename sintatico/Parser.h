@@ -17,7 +17,7 @@ class Parser : public Lexicon{
   public:
     Parser(string automatonFileName, string reservedWordsFileName)
     : Lexicon(automatonFileName, reservedWordsFileName, 211, 50){};
-    void parsing(string inputFileName, string outPutHashFile, string tokensFileName);
+    void parsing(string inputFileName, string outPutHashFile, string tokensFileName, string astFileName, string symbolTableFileName);
 
   private:
     int currentToken = 0;

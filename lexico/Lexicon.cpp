@@ -26,7 +26,7 @@ Lexicon::Lexicon(string automatonFileName, string reservedWordsFileName, int idH
 vector<string> *Lexicon::splitString(string input, char spliter) {
 	vector<string> *l = new vector<string>();
 	int start = 0, size = 0, end = 0;
-	for(int i = 0; i < input.length(); i++){
+	for(unsigned int i = 0; i < input.length(); i++){
 		if(input[i] == spliter){
 			size = start - i;
 			if(size < 0) 
@@ -115,7 +115,7 @@ void Lexicon::config_automaton(string automatonFileName){
 				break;
 			case 'F': //F = Estados Finais
 				l = this->splitString(myString, ' ');
-				for(int i = 1; i<l->size(); i++)
+				for(unsigned int i = 1; i<l->size(); i++)
 				{
 					this->finalStates.push_back(std::stoi((*l)[i]));
 				}
@@ -329,9 +329,8 @@ bool Lexicon::error(int state, string error, int line, int column) {
 	Verifica se uma cadeia de caracteres é aceita pelo léxico.
 */
 bool Lexicon::checkString(string myString, int line){
-	int current = this->startState, finalState = 0, last_terminal = 0, index = 0, start = 0, i = 0, token = 0;
+	int current = this->startState, finalState = 0, last_terminal = 0, index = 0, start = 0, token = 0;
 	int aux;
-	bool tf = false, wt = false;
 	while(true)
 	{
 		//Busca o próximo estado da transição do autômato

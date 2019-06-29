@@ -15,15 +15,17 @@ d real
 myArray array integer 
 myArray2 array array real 
 
-function f1 integer
+function f1 var i real function func integer procedure proc integer
 var:
 a1 integer 
 a2 real 
 
 begin 1
+10
+p 
 a1 := 0 
 if a1 < 10  then
-a1 := a1 + 1 
+a a1 := a1 + 1 
 f1 := a1 and a1 
 read a b 
 f1 := a + b 
@@ -55,6 +57,20 @@ a := a + 1
 end
 
 procedure p2 
+var:
+a1 integer 
+a2 real 
+
+procedure insideP2 
+var:
+a1 integer 
+a2 real 
+
+begin 
+a := a + 1 
+end
+
+
 begin 
 read a 
 write a 

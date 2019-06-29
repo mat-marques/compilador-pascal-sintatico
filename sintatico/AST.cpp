@@ -139,7 +139,6 @@ void Branch::printBranch(ofstream & hFile) {
 
 }
 
-
 void Declaration::printDeclaration(ofstream & hFile) {
 	if(this->v != NULL)
 		hFile << this->v->variable << " ";
@@ -226,6 +225,9 @@ void Term::printTerm(ofstream & hFile) {
 }
 
 void FormalParms::printFormalParms(ofstream & hFile) {
+	if(this->op != "")
+		hFile <<  this->op << " ";
+
 	if(this->variables != NULL){
 		for (std::vector<Variable*>::iterator it = this->variables->begin(); it != this->variables->end(); ++it) {
 			hFile << (*it)->variable << " ";
@@ -258,7 +260,6 @@ void Type::printType(ofstream & hFile) {
 		this->types->printType(hFile);
 	}
 }
-
 
 void StatementWithoutLabel::printStatementWithoutLabel(ofstream & hFile) {
 	if(this->assign != NULL)
@@ -317,7 +318,6 @@ void Write::printWrite(ofstream & hFile) {
 		(*it)->printExpression(hFile);
 	}
 }
-
 
 void Program::removeProgram() {
 
@@ -425,7 +425,6 @@ void Branch::removeBranch() {
 
 }
 
-
 void Declaration::removeDeclaration() {
 	if(this->v != NULL)
 		 delete this->v;
@@ -506,7 +505,6 @@ void Factor::removeFactor() {
 		}
 	}
 }
-
 
 void Term::removeTerm() {
 	if(this->f != NULL){
@@ -613,10 +611,130 @@ void Write::removeWrite() {
 }
 
 
+//////// Tablea de Simbolos ////////
+
+HashTable *Program::createSymbolTable() {
+	HashTable *hash = new HashTable(211);
+	int scope = 0;
+	int displacement = -3;
+
+	if(this->block != NULL){
+
+		if(this->block->varVariables != NULL){
+			int d = 0;
+	        for (std::vector<BlockVar*>::iterator it = this->block->varVariables->begin(); it != this->block->varVariables->end(); ++it) {
+	        	d = (*it)->symbolTableBlockVar(*hash, scope, d);
+	        }
+		}
+
+		if(this->block->rotinas != NULL){
+			scope = scope + 1;
+			for (std::vector<DeclarationFunction*>::iterator it = this->block->rotinas->begin(); it != this->block->rotinas->end(); ++it) {
+
+				(*it)->symbolTableDeclarationFunction(*hash, scope, displacement);
+				scope = scope + 1;
+			}
+		}
+
+	}
 
 
+	return hash;
+}
+
+int BlockVar::symbolTableBlockVar(HashTable &hash, int &scope, int displacement) {
+	int d = displacement;
+	if(this->v != NULL){
+		Type *typeAux;
+		Type *typeAux2 = this->t;
+		while(typeAux2 != NULL){
+			typeAux = typeAux2;
+			typeAux2 = typeAux2->types;
+		}
+		for (std::vector<Variable*>::iterator it = this->v->begin(); it != this->v->end(); ++it) {
+			Item item;
+			item.var_name = (*it)->variable;
+			item.var_category = "variável simples";
+			item.var_type = typeAux->type->variable;
+			item.var_level = scope;
+			item.var_displacement = d;
+			item.var_reference = "valor";
+			hash.insertItem(item);
+			d = d + 1;
+		}
+
+	}
+	return d;
+}
 
 
+void Block::symbolTableBlock(HashTable &hash, int &scope) {
+	int displacement = -3;
 
+	if(this->varVariables != NULL){
+		int d = 0;
+        for (std::vector<BlockVar*>::iterator it = this->varVariables->begin(); it != this->varVariables->end(); ++it) {
+        	d = (*it)->symbolTableBlockVar(hash, scope, d);
+        }
+	}
+
+	if(this->rotinas != NULL){
+		for (std::vector<DeclarationFunction*>::iterator it = this->rotinas->begin(); it != this->rotinas->end(); ++it) {
+			scope = scope + 1;
+			(*it)->symbolTableDeclarationFunction(hash, scope, displacement);
+
+		}
+	}
+
+
+}
+
+int FormalParms::symbolTableFormalParms(HashTable &hash, int &scope, int displacement){
+	int d = displacement;
+
+	for (std::vector<Variable*>::reverse_iterator it = this->variables->rbegin(); it != this->variables->rend(); ++it) {
+		Item item;
+		item.var_name = (*it)->variable;
+		item.var_category = "parâmetro formal";
+		item.var_level = scope;
+		item.var_type = this->type;
+		item.var_displacement = d;
+		if(this->op != "")
+			item.var_reference = "referência";
+		else
+			item.var_reference = "valor";
+
+		hash.insertItem(item);
+		d = d - 1;
+	}
+
+	return d;
+}
+
+void DeclarationFunction::symbolTableDeclarationFunction(HashTable &hash, int &scope, int displacement){
+	int d = displacement;
+	if(this->listParams != NULL){
+		for (std::vector<FormalParms*>::reverse_iterator it = this->listParams->rbegin(); it != this->listParams->rend(); ++it) {
+			d = (*it)->symbolTableFormalParms(hash, scope, d);
+		}
+	}
+
+	Item item;
+	item.var_name = this->functionName->variable;
+	item.var_level = scope;
+	if(this->functionType != NULL){
+		item.var_category = "função";
+		item.var_type = this->functionType->variable;
+	}
+	else {
+		item.var_category = "procedimento";
+		item.var_type = "";
+	}
+	item.var_displacement = d;
+	item.var_reference = "";
+	hash.insertItem(item);
+
+	this->block->symbolTableBlock(hash, scope);
+}
 
 

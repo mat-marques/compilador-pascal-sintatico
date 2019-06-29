@@ -13,8 +13,11 @@ Lista 98, Posicao: 1, Palavra: b
 Lista 99, Posicao: 1, Palavra: c
 Lista 100, Posicao: 1, Palavra: d
 Lista 101, Posicao: 1, Palavra: integer
+Lista 105, Posicao: 1, Palavra: i
 Lista 112, Posicao: 1, Palavra: p
-Lista 115, Posicao: 1, Palavra: p2
+Lista 115, Posicao: 1, Palavra: func
+Lista 115, Posicao: 2, Palavra: p2
+Lista 119, Posicao: 1, Palavra: proc
 Lista 127, Posicao: 1, Palavra: myType
 Lista 148, Posicao: 1, Palavra: myArray
 Lista 154, Posicao: 1, Palavra: t1
@@ -25,3 +28,4 @@ Lista 174, Posicao: 1, Palavra: max
 Lista 175, Posicao: 1, Palavra: a1
 Lista 176, Posicao: 1, Palavra: a2
 Lista 176, Posicao: 2, Palavra: write
+Lista 176, Posicao: 3, Palavra: insideP2

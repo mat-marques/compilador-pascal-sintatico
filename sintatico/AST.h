@@ -6,6 +6,7 @@
 #include <vector>
 #include <iterator>
 #include <fstream>
+#include "../lexico/HashTable.h"
 
 using namespace std;
 
@@ -51,6 +52,7 @@ class Program {
         };
         void printProgram(string fileName);
         void removeProgram();
+        HashTable *createSymbolTable();
 };
 
 class Assign {
@@ -84,6 +86,7 @@ class BlockVar {
         };
         void printBlockVar(ofstream & hFile);
         void removeBlockVar();
+        int symbolTableBlockVar(HashTable &hash, int &scope, int displacement);
 };
 
 class Block {
@@ -103,6 +106,7 @@ class Block {
         };
         void printBlock(ofstream & hFile);
         void removeBlock();
+        void symbolTableBlock(HashTable &hash, int &scope);
 };
 
 class Branch {
@@ -139,6 +143,7 @@ class DeclarationFunction{
         };
         void printDeclarationFunction(ofstream & hFile);
         void removeDeclarationFunction();
+        void symbolTableDeclarationFunction(HashTable &hash, int &scope, int displacement);
 };
 
 class SimpleExpression {
@@ -203,6 +208,7 @@ class FormalParms {
         };
         void printFormalParms(ofstream & hFile);
         void removeFormalParms();
+        int symbolTableFormalParms(HashTable &hash, int &scope, int displacement);
 };
 
 class Loop {

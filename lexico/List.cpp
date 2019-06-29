@@ -124,6 +124,15 @@ void List::showItens2(string nameFile){
     hFile.close();
 }
 
+void List::showItens3(ofstream & hFile, string nameList){
+    Node *temp;
+    temp = this->head;
+    for(int i =0; i < this->size; i++){
+        hFile << nameList << ", " << (i + 1) << " -> [name: "<< temp->data->var_name << "] [categoria: " << temp->data->var_category << "] [level: " << temp->data->var_level << "] [tipo: " << temp->data->var_type  << "] [deslocamento: " << temp->data->var_displacement << "] [referência: " << temp->data->var_reference << "]\n";
+        temp = temp->next;
+    }
+}
+
 /*
   Apaga a lista.
 */

@@ -25,7 +25,7 @@ $(build)Token.o: $(lexico)Token.h $(lexico)Token.cpp
 $(build)Lexicon.o: $(lexico)Lexicon.h $(lexico)Lexicon.cpp $(lexico)HashTable.h $(lexico)HashTable.cpp $(lexico)Token.h $(lexico)Token.cpp
 	g++ $(CFLAGS) -c $(lexico)Lexicon.cpp -o $(build)Lexicon.o
 
-$(build)AST.o: $(sintatico)AST.h $(sintatico)AST.cpp
+$(build)AST.o: $(sintatico)AST.h $(sintatico)AST.cpp $(lexico)HashTable.h $(lexico)HashTable.cpp
 	g++ $(CFLAGS) -c $(sintatico)AST.cpp -o $(build)AST.o
 
 $(build)Parser.o: $(sintatico)Parser.h $(sintatico)Parser.cpp $(lexico)Lexicon.h $(lexico)Lexicon.cpp $(sintatico)AST.h $(sintatico)AST.cpp 

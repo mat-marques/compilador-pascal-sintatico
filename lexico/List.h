@@ -28,6 +28,7 @@ class List {
       Item * remove(Item data);
       Item * search(Item data);
       void showItens(ofstream & hFile, string nameList);
+      void showItens3(ofstream & hFile, string nameList);
       void showItens2(string nameFile);
       int getSize();
       void removeList();

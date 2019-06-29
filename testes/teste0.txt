@@ -10,11 +10,13 @@ var
 
 label 10, 11, 12;
 
-function f1(): integer;
+function f1(var i:real, function func:integer, procedure proc): integer;
 var 
 	a1: integer;
 	a2: real;
 begin 1:
+	goto 10;
+	p();
     a1 := 0;
     if a1 < 10 then
         a1 := a1 + 1; 
@@ -49,6 +51,17 @@ begin
 end;
 
 procedure p2();
+procedure insideP2();
+var 
+	a1: integer;
+	a2: real;
+begin
+    a := a + 1;
+end;
+
+var 
+	a1: integer;
+	a2: real;
 begin
 	read(a);
 	write(a);

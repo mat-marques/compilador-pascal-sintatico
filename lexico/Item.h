@@ -10,12 +10,12 @@ class Item {
   public:
     string var_name;
     string var_category;
-    string var_level;
+    int var_level;
     string var_type;
-    string var_displacement;
+    int var_displacement;
     string var_reference;
     Item();
-    Item(string var_name, string var_category, string var_level, string var_type, string var_displacement, string var_reference);
+    Item(string var_name, string var_category, int var_level, string var_type, int var_displacement, string var_reference);
     Item(string var_name);
     void show();
 };

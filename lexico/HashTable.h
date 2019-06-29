@@ -23,6 +23,7 @@ class HashTable {
     Item *searchItem(string item);
     bool searchItem2(string item);
     void show(string outFile);
+    void show2(string outFile);
     void removeHashTable();
     
   private:

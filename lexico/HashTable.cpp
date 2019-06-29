@@ -18,7 +18,7 @@ bool HashTable::insertItem(Item item){
   List *l;
   int hashKey = this->hashFunction(item.var_name);
   l = this->hashtable[hashKey];
-  l->addFinal(new Item(item.var_name, item.var_category, item.var_level, item.var_category, item.var_displacement, item.var_reference));
+  l->addFinal(new Item(item.var_name, item.var_category, item.var_level, item.var_type, item.var_displacement, item.var_reference));
   return false;
 }
 
@@ -70,6 +70,26 @@ void HashTable::show(string outFile){
 }
 
 /*
+  Escreve os itens da lista.
+*/
+void HashTable::show2(string outFile){
+  int i =0;
+  ofstream hFile;
+  hFile.open (outFile);
+
+  while(i < this->size){
+    List *l = this->hashtable[i];
+    if(l->getSize() > 0) {
+      string ln = std::to_string(i);
+      l->showItens3(hFile, ln);
+    }
+    i++;
+  }
+
+  hFile.close();
+}
+
+/*
   Deleta um item da hashTable.
 */
 Item *HashTable::deleteItem(Item item){
@@ -85,7 +105,7 @@ Item *HashTable::deleteItem(Item item){
 */
 int HashTable::hashFunction(string item){
   unsigned long int h = 0, alfa = 10;
-  for(int i=0; i<item.length(); i++){
+  for(unsigned long int i=0; i<item.length(); i++){
     h = (alfa * h) + item[i];
   }
   h = h % this->size;

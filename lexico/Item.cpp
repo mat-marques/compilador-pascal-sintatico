@@ -8,7 +8,7 @@ Item::Item(string var_name) {
     this->var_name = var_name;
 }
 
-Item::Item(string var_name, string var_category, string var_level, string var_type, string var_displacement, string var_reference){
+Item::Item(string var_name, string var_category, int var_level, string var_type, int var_displacement, string var_reference){
     this->var_name = var_name;
     this->var_category = var_category;
     this->var_level = var_level;
