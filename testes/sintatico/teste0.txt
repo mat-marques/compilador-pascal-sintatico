@@ -1,57 +1,41 @@
 program programa(t1, t2, t3, t4);
-
-type myType = integer;
-	 myType2 = real;
 var 
     a,b,c:integer;
-    d: real;
-	myArray: array[2..2,2..2] of integer;
-	myArray2: array[2..2,2..2] of array[2..2,2..2] of real;
 
-label 10, 11, 12;
+var 
+    d: real;
+
+var myArray: array[2..2,2..2] of integer;
+
+label 10;
+
+type myType = integer;
 
 function f1(): integer;
-var 
-	a1: integer;
-	a2: real;
+var a1: integer;
+var a2: real;
 begin 1:
     a1 := 0;
     if a1 < 10 then
         a1 := a1 + 1; 
-    f1 := a1 and a1;
-    read(a, b);
-    f1 := a + b;
 end;
 
 function f2(): real;
 begin 2:
     a := 10;
     b := 0;
-    write(a + 1, b);
-    while b < a do
+    while b < a d do
         if b <= a then
             b := b + 1;
-    f2 := b div 2;
 end;
 
-function max(num1, num2: integer):integer;
+funnction max(num1, num2: integer):integer;
 begin
    if (num1 > num2) then
       result := num1
    else
       result := num2;
    max := result;
-end;
-
-procedure p();
-begin
-    a := a + 1;
-end;
-
-procedure p2();
-begin
-	read(a);
-	write(a);
 end;
 
 begin

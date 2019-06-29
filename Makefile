@@ -4,8 +4,8 @@ lexico = ./lexico/
 sintatico = ./sintatico/
 
 
-main: $(build)main.o $(build)HashTable.o $(build)List.o $(build)Item.o $(build)Lexicon.o $(build)Parser.o $(build)Token.o
-	g++ $(CFLAGS) -o main $(build)main.o $(build)HashTable.o $(build)List.o $(build)Item.o $(build)Lexicon.o $(build)Parser.o $(build)Token.o
+main: $(build)main.o $(build)HashTable.o $(build)List.o $(build)Item.o $(build)Lexicon.o $(build)Parser.o $(build)Token.o $(build)AST.o
+	g++ $(CFLAGS) -o main $(build)main.o $(build)HashTable.o $(build)List.o $(build)Item.o $(build)Lexicon.o $(build)Parser.o $(build)Token.o $(build)AST.o
 
 $(build)main.o: $(sintatico)Parser.h $(sintatico)Parser.cpp main.cpp
 	g++ $(CFLAGS) -c main.cpp -o $(build)main.o
@@ -25,8 +25,10 @@ $(build)Token.o: $(lexico)Token.h $(lexico)Token.cpp
 $(build)Lexicon.o: $(lexico)Lexicon.h $(lexico)Lexicon.cpp $(lexico)HashTable.h $(lexico)HashTable.cpp $(lexico)Token.h $(lexico)Token.cpp
 	g++ $(CFLAGS) -c $(lexico)Lexicon.cpp -o $(build)Lexicon.o
 
+$(build)AST.o: $(sintatico)AST.h $(sintatico)AST.cpp
+	g++ $(CFLAGS) -c $(sintatico)AST.cpp -o $(build)AST.o
 
-$(build)Parser.o: $(sintatico)Parser.h $(sintatico)Parser.cpp $(lexico)Lexicon.h $(lexico)Lexicon.cpp 
+$(build)Parser.o: $(sintatico)Parser.h $(sintatico)Parser.cpp $(lexico)Lexicon.h $(lexico)Lexicon.cpp $(sintatico)AST.h $(sintatico)AST.cpp 
 	g++ $(CFLAGS) -c $(sintatico)Parser.cpp -o $(build)Parser.o
 
 .PHONY:

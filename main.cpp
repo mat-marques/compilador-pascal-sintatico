@@ -7,7 +7,7 @@ using namespace std;
 
 int main() {
 
-   string input = "fibonacci.txt", output = "fibonacci.txt", tokens = "fibonacciTokens.txt";
+   string input = "teste0.txt", output = "teste0.txt", tokens = "teste0Tokens.txt";
    Parser *parser = new Parser("./configuracoes/Automaton.txt", "./configuracoes/Palavras_Reservadas.txt");
 
    // cout << "Digite o nome do arquivo de entrada: ";
@@ -19,13 +19,11 @@ int main() {
    // cout << "Digite o nome do arquivo de saida dos tokens: ";
    // cin >> tokens;
    
-   cout << "Compilando ..." << endl;
+   cout << "Compilando ..." << endl << endl;
 
-   parser->process_lexicon("./testes/" + input, "./saida/" + output, "./saida/" + tokens);
-
-   parser->parsing();
+   parser->parsing("./testes/" + input, "./saida/" + output, "./saida/" + tokens);
    
-   cout << "fim ..." << endl;
+   cout << "fim." << endl;
    delete parser;
 
    return 0;

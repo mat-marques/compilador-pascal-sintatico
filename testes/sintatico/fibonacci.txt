@@ -1,0 +1,17 @@
+program recursiveFibonacci(fib1, fib2);
+var
+   i, k: integer;
+function fibonacci(n: integer): integer;
+
+begin
+   if n=1 then
+      fibonacci := 0
+   else
+      fibonacci := fibonacci(n-1) + fibonacci(n-2);
+end; 
+
+begin
+   k := 0;
+   while k < 10 do
+      k := k + 1
+end.

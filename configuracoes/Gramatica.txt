@@ -67,6 +67,8 @@
 	<atribuicoes>
 	| <chamada de procedimento>
 	| <desvio>
+	| <read>
+	| <write>
 	| <comando composto>
 	| <comando condicional>
 	| <comando repetitivo>
@@ -109,9 +111,8 @@
 	|not <fator>
 
 29.5. <fatorAux> ::=
-	<lista de expressoes>
-	| (<lista de expressoes>)
-	| vazio
+	[<lista de expressoes>]
+	| [(lista de expressoes)]
 
 30. <variavel> ::=
 	identificador
@@ -120,4 +121,7 @@
 31. <chamada de funcao> ::=
 	identificador [(<lista de expressoes>)]
 
+32. <read> := ( <lista de identificadores> )
+
+33. <write> := ( <lista de expressoes> )
 

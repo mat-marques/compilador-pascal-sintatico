@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <iterator>
+#include <fstream>
 
 using namespace std;
 
@@ -22,17 +24,21 @@ class Type;
 class Statement;
 class StatementWithoutLabel;
 class FormalParms;
+class Read;
+class Write;
 
 class Variable{
     public:
         string variable;
         Variable (string variable) { this->variable = variable; };
+        void printVariable(ofstream & hFile);
 };
 
 class Number{
     public:
         string value;
         Number (string value) { this->value = value; };
+        void printNumber(ofstream & hFile);
 };
 
 class Program {
@@ -43,7 +49,8 @@ class Program {
             this->listVariables = listVariables;
             this->block = block;
         };
-  
+        void printProgram(string fileName);
+        void removeProgram();
 };
 
 class Assign {
@@ -53,6 +60,8 @@ class Assign {
             this->dec = dec;
             this->ex = ex;
         };
+        void printAssign(ofstream & hFile);
+        void removeAssign();
 };
 
 class BlockType {
@@ -62,6 +71,8 @@ class BlockType {
             this->v = v;
             this->t = t;
         };
+        void printBlockType(ofstream & hFile);
+        void removeBlockType();
 };
 
 class BlockVar {
@@ -71,6 +82,8 @@ class BlockVar {
             this->v = v;
             this->t = t;
         };
+        void printBlockVar(ofstream & hFile);
+        void removeBlockVar();
 };
 
 class Block {
@@ -88,6 +101,8 @@ class Block {
             this->rotinas = rotinas;
             this->statements = statements;
         };
+        void printBlock(ofstream & hFile);
+        void removeBlock();
 };
 
 class Branch {
@@ -98,6 +113,8 @@ class Branch {
             this->st1 = st1;
             this->st2 = st2;
         };
+        void printBranch(ofstream & hFile);
+        void removeBranch();
 };
 
 class Declaration {
@@ -107,6 +124,8 @@ class Declaration {
             this->v = v;
             this->ex = ex;
         };
+        void printDeclaration(ofstream & hFile);
+        void removeDeclaration();
 };
 
 class DeclarationFunction{
@@ -118,16 +137,20 @@ class DeclarationFunction{
             this->functionType = functionType;
             this->block = block;
         };
+        void printDeclarationFunction(ofstream & hFile);
+        void removeDeclarationFunction();
 };
 
 class SimpleExpression {
     public:
-        string op; Term* t; SimpleExpression* simpleExpressions;
+        string op; Term* t; SimpleExpression *simpleExpressions;
         SimpleExpression(string op, Term *t, SimpleExpression *simpleExpressions) {
             this->op = op;
             this->t = t;
             this->simpleExpressions = simpleExpressions;
         };
+        void printSimpleExpression(ofstream & hFile);
+        void removeSimpleExpression();
 };
 
 class Expression {
@@ -138,6 +161,8 @@ class Expression {
             this->op = op;
             this->ex2 = ex2;
         };
+        void printExpression(ofstream & hFile);
+        void removeExpression();
 };
 
 class Factor {
@@ -152,6 +177,8 @@ class Factor {
             this->ex = ex;
             this->f = f;
         };
+        void printFactor(ofstream & hFile);
+        void removeFactor();
 };
 
 class Term {
@@ -162,6 +189,8 @@ class Term {
             this->op = op;
             this->t = t;
         };
+        void printTerm(ofstream & hFile);
+        void removeTerm();
 };
 
 class FormalParms {
@@ -172,7 +201,8 @@ class FormalParms {
             this->variables = variables;
             this->type = type;
         };
-        
+        void printFormalParms(ofstream & hFile);
+        void removeFormalParms();
 };
 
 class Loop {
@@ -182,16 +212,20 @@ class Loop {
             this->ex = ex;
             this->statement = statement;
         }
+        void printLoop(ofstream & hFile);
+        void removeLoop();
 };
 
 class Type {
     public:
-        Variable *variable; vector<Number*> *numbers; Type *types;
-        Type(Variable *variable, vector<Number*> *numbers, Type *types) {
-            this->variable = variable;
-            this->numbers = numbers;
+        Variable *type; vector<Number*> *arrayNumbers; Type *types;
+        Type(Variable *type, vector<Number*> *arrayNumbers, Type *types) {
+            this->type = type;
+            this->arrayNumbers = arrayNumbers;
             this->types = types;
         };
+        void printType(ofstream & hFile);
+        void removeType();
 };
 
 class StatementWithoutLabel {
@@ -202,15 +236,22 @@ class StatementWithoutLabel {
         vector<Statement*> *statements;
         Branch *branch;
         Loop *loop;
+        Read *read;
+        Write *write;
         StatementWithoutLabel (Assign *assign, Declaration *declaration, 
-        Number *goto_, vector<Statement*> *statements, Branch *branch, Loop *loop) {
+        Number *goto_, vector<Statement*> *statements, Branch *branch, Loop *loop,
+		Read *read, Write *write) {
             this->assign = assign;
             this->declaration = declaration;
             this->goto_ = goto_;
             this->statements = statements;
             this->branch = branch;
             this->loop = loop;
+            this->read = read;
+            this->write = write;
         };
+        void printStatementWithoutLabel(ofstream & hFile);
+        void removeStatementWithoutLabel();
 };
 
 class Statement {
@@ -220,9 +261,29 @@ class Statement {
             this->label = label;
             this->st = st;
         };
+        void printStatement(ofstream & hFile);
+        void removeStatement();
 };
 
+class Read {
+	public:
+		vector<Variable*> *variables;
+		Read(vector<Variable*> *variables){
+			this->variables = variables;
+		};
+		void printRead(ofstream & hFile);
+		void removeRead();
+};
 
+class Write {
+	public:
+		vector<Expression*> *expressions;
+		Write(vector<Expression*> *Expressions){
+			this->expressions = expressions;
+		};
+		void printWrite(ofstream & hFile);
+		void removeWrite();
+};
 
 
 #endif

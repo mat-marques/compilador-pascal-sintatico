@@ -130,7 +130,7 @@ void Lexicon::config_automaton(string automatonFileName){
 /*
 	Faz o processo de análise das cadeias de entrada.
 */
-void Lexicon::process_lexicon(string inputFileName, string outPutHashFile, string tokensFileName){
+bool Lexicon::process_lexicon(string inputFileName, string outPutHashFile, string tokensFileName){
 	int line = 0;
 	ifstream inputFile;
 	string myString;
@@ -165,6 +165,8 @@ void Lexicon::process_lexicon(string inputFileName, string outPutHashFile, strin
 	delete this->hashIdentifiers;
 	delete this->hashReservedWords;
 	inputFile.close();
+
+	return verify;
 }
 
 void Lexicon::printTokens(string tokensFileName) {
@@ -310,7 +312,7 @@ int Lexicon::getToken(int posic){
 */
 bool Lexicon::error(int state, string error, int line, int column) {
 	//cout << "-> " << error << endl;
-	if(error != " " && error != "\n" && error != "\r"  && error != "\0"){
+	if(error != " " && error != "\n" && error != "\r"  && error != "\0" && error != "\t"){
 		if(state == 21) {
 			cout << "erro léxico:linha: "<< line << " :coluna: "<< column << " :símbolo não reconhecido: "<< error << "\n";
 			return true;
@@ -345,9 +347,11 @@ bool Lexicon::checkString(string myString, int line){
 
 		if(current == 0){
 			//Calcula o tamanho da string
-			aux = start - index;
+			aux = start - last_terminal;
 			if(aux < 0)
-				aux = aux * (-1);
+				aux = (aux * (-1)) + 1;
+			if(aux == 0)
+				aux = 1;
 		
 			//verifica se não é um erro
 			if(finalState != 0 && finalState != 21 && finalState != 22){
@@ -412,8 +416,8 @@ Token *Lexicon::getTokenList(int index) {
 	int count = 0;
 	for (std::list<Token*>::iterator it = this->tokens->begin(); it != this->tokens->end(); ++it){
     	if(count == index) {
+    		//cout << (*it)->var_value << endl;
 			return *it;
-			break;
 		}
 		count++;
 	}

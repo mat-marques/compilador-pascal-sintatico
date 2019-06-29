@@ -6,6 +6,7 @@
 #include <list>
 #include <vector>
 #include <iterator>
+#include <fstream>
 #include "../lexico/Lexicon.h"
 #include "AST.h"
 
@@ -14,15 +15,15 @@ using namespace std;
 
 class Parser : public Lexicon{
   public:
-    Program *ast;
     Parser(string automatonFileName, string reservedWordsFileName)
     : Lexicon(automatonFileName, reservedWordsFileName, 211, 50){};
-    void parsing();
+    void parsing(string inputFileName, string outPutHashFile, string tokensFileName);
 
   private:
     int currentToken = 0;
+    bool syntaxError = false;
+    Program *ast = NULL;
     void eat(string symbol);
-    void printAst(string astFileName);
 
     void programa();
     Block *bloco();
@@ -56,7 +57,8 @@ class Parser : public Lexicon{
     vector<Expression*> *fatorAux();
     Declaration *variavel();
     Declaration *chamadaDeFuncao();
-
+    Read *readParser();
+    Write *writeParser();
 };
 
 #endif
