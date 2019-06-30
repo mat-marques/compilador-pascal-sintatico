@@ -78,44 +78,54 @@ void BlockVar::printBlockVar(ofstream & hFile) {
 
 void Block::printBlock(ofstream & hFile) {
 	if(this->labels != NULL){
-		hFile << "labels:\n";
-		for (std::vector<Number*>::iterator it = this->labels->begin(); it != this->labels->end(); ++it) {
-			hFile << (*it)->value << " ";
+		if(this->labels->size() > 0){
+			hFile << "labels:\n";
+			for (std::vector<Number*>::iterator it = this->labels->begin(); it != this->labels->end(); ++it) {
+				hFile << (*it)->value << " ";
+			}
+			hFile << "\n\n";
 		}
-		hFile << "\n\n";
 	}
 
 	if(this->varTypes != NULL){
-		hFile << "types:\n";
-        for (std::vector<BlockType*>::iterator it = this->varTypes->begin(); it != this->varTypes->end(); ++it) {
-        	(*it)->printBlockType(hFile);
-        }
-        hFile << "\n";
+		if(this->varTypes->size() > 0){
+			hFile << "types:\n";
+			for (std::vector<BlockType*>::iterator it = this->varTypes->begin(); it != this->varTypes->end(); ++it) {
+				(*it)->printBlockType(hFile);
+			}
+			hFile << "\n";
+		}
 	}
 
 	if(this->varVariables != NULL){
-		hFile << "var:\n";
-        for (std::vector<BlockVar*>::iterator it = this->varVariables->begin(); it != this->varVariables->end(); ++it) {
-        	(*it)->printBlockVar(hFile);
-        }
-        hFile << "\n";
+		if(this->varVariables->size() > 0){
+			hFile << "var:\n";
+			for (std::vector<BlockVar*>::iterator it = this->varVariables->begin(); it != this->varVariables->end(); ++it) {
+				(*it)->printBlockVar(hFile);
+			}
+			hFile << "\n";
+		}
 	}
 
 	if(this->rotinas != NULL){
-        for (std::vector<DeclarationFunction*>::iterator it = this->rotinas->begin(); it != this->rotinas->end(); ++it) {
-        	(*it)->printDeclarationFunction(hFile);
-        }
-        hFile << "\n";
+		if(this->rotinas->size() > 0){
+			for (std::vector<DeclarationFunction*>::iterator it = this->rotinas->begin(); it != this->rotinas->end(); ++it) {
+				(*it)->printDeclarationFunction(hFile);
+			}
+			hFile << "\n";
+		}
 	}
 
 	if(this->statements != NULL){
-		hFile << "begin ";
-        for (std::vector<Statement*>::iterator it = this->statements->begin(); it != this->statements->end(); ++it) {
-        	(*it)->printStatement(hFile);
-        }
-		hFile << "\n";
-		hFile << "end";
-		hFile << "\n\n";
+		if(this->statements->size() > 0){
+			hFile << "begin ";
+			for (std::vector<Statement*>::iterator it = this->statements->begin(); it != this->statements->end(); ++it) {
+				(*it)->printStatement(hFile);
+			}
+			hFile << "\n";
+			hFile << "end";
+			hFile << "\n\n";
+		}
 	}
 }
 
@@ -272,7 +282,7 @@ void StatementWithoutLabel::printStatementWithoutLabel(ofstream & hFile) {
 		this->declaration->printDeclaration(hFile);
 
 	else if(this->goto_ != NULL)
-		hFile << this->goto_->value;
+		hFile << "goto " << this->goto_->value;
 
 	else if(this->loop != NULL)
 		this->loop->printLoop(hFile);

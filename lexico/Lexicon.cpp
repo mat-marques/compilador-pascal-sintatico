@@ -131,7 +131,7 @@ void Lexicon::config_automaton(string automatonFileName){
 	Faz o processo de análise das cadeias de entrada.
 */
 bool Lexicon::process_lexicon(string inputFileName, string outPutHashFile, string tokensFileName){
-	int line = 0;
+	int line = 1;
 	ifstream inputFile;
 	string myString;
 	bool verify;
@@ -273,7 +273,7 @@ int Lexicon::_nextState(int currentState, char c){
 	Verifica se o estado atual está contido no conjunto de estados finais.
 */
 bool Lexicon::_finalState(int currentState){
-	for(int i = 0; i<this->finalStates.size(); i++)
+	for(unsigned int i = 0; i<this->finalStates.size(); i++)
 	{
 		if(this->finalStates[i] == currentState)
 		{

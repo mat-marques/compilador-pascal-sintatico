@@ -5,32 +5,31 @@
 
 using namespace std;
 
-int main() {
+int main(int argc, char* argv[]) {
 
-   string input = "teste0.txt", output = "teste0.txt", tokens = "teste0Tokens.txt", ast = "ast.txt", tabelaDeSimbolos = "tabelaDeSimbolos.txt";
-   Parser *parser = new Parser("./configuracoes/Automaton.txt", "./configuracoes/Palavras_Reservadas.txt");
+	if(argc < 6) {
+		cout << "Help" << endl;
+		cout << "Digite o nome dos arquivos na seguinte ordem"<< endl;
+		cout << "- Nome do arquivo de Entrada" << endl;
+		cout << "- Nome do arquivo de saida para a listagem dos Identificadores" << endl;
+		cout << "- Nome do arquivo de saida dos Tokens" << endl;
+		cout << "- Nome do arquivo de saida para a AST" << endl;
+		cout << "- Nome do arquivo de saida para a Tabela de Simbolos" << endl;
 
-//    cout << "Digite o nome do arquivo de Entrada: ";
-//    cin >> input;
-//
-//    cout << "Digite o nome do arquivo de saida para a listagem dos Identificadores: ";
-//    cin >> output;
-//
-//    cout << "Digite o nome do arquivo de saida dos Tokens: ";
-//    cin >> tokens;
-//
-//    cout << "Digite o nome do arquivo de saida para a AST: ";
-//	  cin >> ast;
-//
-//	  cout << "Digite o nome do arquivo de saida para a Tabela de Simbolos: ";
-//	  cin >> tabelaDeSimbolos;
-   
-   cout << "Compilando ..." << endl << endl;
+	}
+	else {
+	   vector<string> entrada;
+	   entrada.assign(argv + 1, argv + argc);
 
-   parser->parsing("./testes/" + input, "./saida/" + output, "./saida/" + tokens, "./saida/" + ast, "./saida/" + tabelaDeSimbolos);
-   
-   cout << "fim." << endl;
-   delete parser;
+	   Parser *parser = new Parser("./configuracoes/Automaton.txt", "./configuracoes/Palavras_Reservadas.txt");
+
+	   cout << "Compilando ..." << endl << endl;
+
+	   parser->parsing("./testes/" + entrada[0], "./saida/" + entrada[1], "./saida/" + entrada[2], "./saida/" + entrada[3], "./saida/" + entrada[4]);
+
+	   cout << endl << "fim." << endl;
+	   delete parser;
+	}
 
    return 0;
 }
