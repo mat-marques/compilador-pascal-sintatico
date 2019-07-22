@@ -1,18 +1,69 @@
 #include "Parser.h"
 
-void Parser::eat(string symbol) {
+string Parser::eat(string symbol) {
     Token *t = Lexicon::getTokenList(this->currentToken);
     if(t != NULL){
-		//cout << t->var_value << endl;
+		cout << t->var_value << endl;
 		if(t->var_value.compare(symbol) == 0) {
 			this->currentToken = this->currentToken + 1;
-		} else {
-			cout << "erro sintático: "<< t->var_value << " na linha: " << t->row << " e coluna: "<< t->col << endl;
-			this->syntaxError = true;
+			return symbol;
 		}
+    }
+    return "";
+}
+
+string Parser::eatVarType() {
+    Token *t = Lexicon::getTokenList(this->currentToken);
+    if(t != NULL){
+    	cout << t->var_value << endl;
+		if(t->var_value.compare("integer") == 0) {
+			this->currentToken = this->currentToken + 1;
+			return "integer";
+		}
+		if(t->var_value.compare("real") == 0) {
+			this->currentToken = this->currentToken + 1;
+			return "real";
+		}
+		if(t->var_value.compare("boolean") == 0) {
+			this->currentToken = this->currentToken + 1;
+			return "boolean";
+		}
+		if(t->var_value.compare("byte") == 0) {
+			this->currentToken = this->currentToken + 1;
+			return "byte";
+		}
+		if(t->var_value.compare("char") == 0) {
+			this->currentToken = this->currentToken + 1;
+			return "char";
+		}
+		if(t->var_value.compare("string") == 0) {
+			this->currentToken = this->currentToken + 1;
+			return "string";
+		}
+    }
+
+    return "";
+}
+
+void Parser::eatFinal() {
+    Token *t = Lexicon::getTokenList(this->currentToken);
+    if(t != NULL){
+		cout << "erro sintático: "<< t->var_value << " na linha: " << t->row << " e coluna: "<< t->col << endl;
+		this->syntaxError = true;
     }
 }
 
+string Parser::eatType(string symbol) {
+    Token *t = Lexicon::getTokenList(this->currentToken);
+    if(t != NULL){
+		cout << t->var_value << endl;
+		if(t->var_type.compare(symbol) == 0) {
+			this->currentToken = this->currentToken + 1;
+			return t->var_value;
+		}
+    }
+    return "";
+}
 
 void Parser::parsing(string inputFileName, string outPutHashFile, string tokensFileName, string astFileName, string symbolTableFileName){
 
@@ -23,7 +74,7 @@ void Parser::parsing(string inputFileName, string outPutHashFile, string tokensF
 
 		programa();
 
-		eat(" ");
+		eatFinal();
 
 		//Printar a AST
 		if(!this->syntaxError){
@@ -40,53 +91,42 @@ void Parser::parsing(string inputFileName, string outPutHashFile, string tokensF
 }
 
 void Parser::programa() {
-    Token *t = Lexicon::getTokenList(this->currentToken);
     Variable *programName = NULL;
-    vector<Variable*> *listVariables = NULL; 
+    vector<Variable*> *listVariables = NULL;
     Block *block = NULL;
+    string aux;
 
-    if(t->var_value.compare("program") == 0){
-        eat(t->var_value);
-        
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_type.compare("IDENTIFICADOR") == 0){
-            eat(t->var_value);
+    if(eat("program") != "") {
+    	aux = eatType("IDENTIFICADOR");
 
-            programName = new Variable(t->var_value);
+    	if(aux != ""){
+			programName = new Variable(aux);
 
-            t = Lexicon::getTokenList(this->currentToken);
+			if(eat("(") != ""){
+				listVariables = listaDeIdentificadores();
 
-            if(t->var_value == "(") {
-                eat(t->var_value);
-                
-                listVariables = listaDeIdentificadores();
-                
-                if(listVariables != NULL) {
-					t = Lexicon::getTokenList(this->currentToken);
+				if(listVariables != NULL){
 
-					if(t->var_value == ")") {
-						eat(t->var_value);
-						t = Lexicon::getTokenList(this->currentToken);
+					if(eat(")") != "" && eat(";") != ""){
 
-						if(t->var_value == ";") {
-							eat(t->var_value);
+						block = bloco();
+						if(block != NULL){
 
-							block = bloco();
+							if(eat(".") != ""){
 
-							if(block != NULL) {
-								t = Lexicon::getTokenList(this->currentToken);
-								if(t->var_value == ".") {
-									eat(t->var_value);
-								}
+								this->ast = new Program(programName, listVariables, block);
+
 							}
 						}
 					}
-               }
-            }
-        }
+				}
+			}
+    	}
+    }
+    else {
+    	this->ast = NULL;
     }
 
-    this->ast = new Program(programName, listVariables, block);
 }
 
 Block *Parser::bloco(){
@@ -95,73 +135,62 @@ Block *Parser::bloco(){
 	vector<BlockVar*> *variables = new vector<BlockVar*>();
 	vector<DeclarationFunction*> *rotinas = new vector<DeclarationFunction*>();
 	vector<Statement*> *statements = new vector<Statement*>();
-	Token *t = NULL;
+	vector<Number*> *l = NULL;
+	vector<BlockType*> *t = NULL;
+	vector<BlockVar*> *v = NULL;
+	vector<DeclarationFunction*> *r = NULL;
+	vector<Statement*> *s = NULL;
 
     while(true) {
-    	t = Lexicon::getTokenList(this->currentToken);
-    	if(t->var_value.compare("label") == 0){
-    		vector<Number*> *l = parteDeDeclaracoesDeRotulos();
-    		if(l != NULL){
-				labels->insert(
-					labels->end(),
-					std::make_move_iterator(l->begin()),
-					std::make_move_iterator(l->end())
-				);
-    		} else {
-    			return NULL;
-    		}
-    	} else
-    	if(t->var_value.compare("type") == 0){
-    		vector<BlockType*> *t = parteDeDefinicoesDeTipos();
-    		if(t != NULL){
-				types->insert(
-					types->end(),
-					std::make_move_iterator(t->begin()),
-					std::make_move_iterator(t->end())
-				);
-    		} else {
-    			return NULL;
-    		}
-    	} else
-    	if(t->var_value.compare("var") == 0){
-    		vector<BlockVar*> *v = parteDeDeclaracoesDeVariaveis();
-    		if(v != NULL){
-				variables->insert(
-					variables->end(),
-					std::make_move_iterator(v->begin()),
-					std::make_move_iterator(v->end())
-				);
-    		} else {
-    			return NULL;
-    		}
-    	} else
-    	if(t->var_value.compare("procedure") == 0 || t->var_value.compare("function") == 0){
-    		vector<DeclarationFunction*> *r = parteDeDeclaracoesDeSubRotinas();
-    		if(r != NULL){
-				rotinas->insert(
-					rotinas->end(),
-					std::make_move_iterator(r->begin()),
-					std::make_move_iterator(r->end())
-				);
-    		} else {
-    			return NULL;
-    		}
-    	} else
-    	if(t->var_value.compare("begin") == 0) {
-    		vector<Statement*> *s = comandoComposto();
-    		if(s != NULL){
-				statements->insert(
-					statements->end(),
-					std::make_move_iterator(s->begin()),
-					std::make_move_iterator(s->end())
-				);
-    		} else {
-    			return NULL;
-    		}
-    	}
-    	else {
-    		break;
-    	}
+		l = parteDeDeclaracoesDeRotulos();
+		if(l != NULL){
+			labels->insert(
+				labels->end(),
+				std::make_move_iterator(l->begin()),
+				std::make_move_iterator(l->end())
+			);
+		}
+
+		t = parteDeDefinicoesDeTipos();
+		if(t != NULL){
+			types->insert(
+				types->end(),
+				std::make_move_iterator(t->begin()),
+				std::make_move_iterator(t->end())
+			);
+		}
+
+		v = parteDeDeclaracoesDeVariaveis();
+		if(v != NULL){
+			variables->insert(
+				variables->end(),
+				std::make_move_iterator(v->begin()),
+				std::make_move_iterator(v->end())
+			);
+		}
+
+		r = parteDeDeclaracoesDeSubRotinas();
+		if(r != NULL){
+			rotinas->insert(
+				rotinas->end(),
+				std::make_move_iterator(r->begin()),
+				std::make_move_iterator(r->end())
+			);
+		}
+
+		s = comandoComposto();
+		if(s != NULL){
+			statements->insert(
+				statements->end(),
+				std::make_move_iterator(s->begin()),
+				std::make_move_iterator(s->end())
+			);
+		}
+
+		if(l == NULL && t == NULL && v == NULL && r == NULL && s == NULL)
+			break;
+
+		l = NULL; t = NULL; v = NULL; r = NULL; s = NULL;
     }
 
     if(labels == NULL && types == NULL && variables == NULL && rotinas == NULL && statements == NULL)
@@ -171,88 +200,66 @@ Block *Parser::bloco(){
 }
 
 vector<Number*> *Parser::parteDeDeclaracoesDeRotulos() {
-    Token *t = Lexicon::getTokenList(this->currentToken);
- 
-    vector<Number*> *labels = new vector<Number*>();
+	    vector<Number*> *labels = new vector<Number*>();
+	    string aux;
+	    if(eat("label") != "") {
+	    	aux = eatType("NUMERO");
 
-    if(t->var_value.compare("label") == 0) {
-        eat(t->var_value);
+	        if(aux != ""){
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_type.compare("NUMERO") == 0){
-            eat(t->var_value);
-            
-            labels->push_back(new Number(t->var_value));
+	            labels->push_back(new Number(aux));
 
-            //ParteDeDeclaracoesDeRotulosAux
-            int aux;
-            while(true){
-                t = Lexicon::getTokenList(this->currentToken);
-                if(t->var_value.compare(",") == 0) {
-                	aux = this->currentToken;
-                    eat(t->var_value);
+	            int token;
+	            while(true){
+	                if(eat(",") != "") {
+	                	token = this->currentToken;
 
-                    t = Lexicon::getTokenList(this->currentToken);
-                    if(t->var_type.compare("NUMERO") == 0){
-                        eat(t->var_value);
+	                	aux = eatType("NUMERO");
+	                    if(aux != ""){
 
-                        labels->push_back(new Number(t->var_value));
+	                        labels->push_back(new Number(aux));
 
-                    }
-                    else {
-                    	this->currentToken = aux;
-                    	break;
-                    }
+	                    }
+	                    else {
+	                    	this->currentToken = token;
+	                    	break;
+	                    }
 
-                } else {
-                    break;
-                }
-            }
+	                } else {
+	                    break;
+	                }
+	            }
 
-        } 
-        else {
-        	delete labels;
-            return NULL;
-        }
+	        }
+	        else {
+	        	delete labels;
+	            return NULL;
+	        }
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare(";") == 0) {
-            eat(t->var_value);
-        }
-        else {
-            delete labels;
-            return NULL;
-        }
-    }
-    else {
-        delete labels;
-        return NULL;
-    }
+	        if(eat(";") != "") {
+	        	return labels;
+	        }
+	    }
 
-    return labels;
+
+	    return NULL;
 }
 
+
 vector<BlockType*> *Parser::parteDeDefinicoesDeTipos() {
-    Token *t = Lexicon::getTokenList(this->currentToken);
-    
     vector<BlockType*> *types = new vector<BlockType*>();
     BlockType *type;
 
-    if(t->var_value.compare("type") == 0) {
-        eat(t->var_value);
+    if(eat("type") != "") {
 
         type = definicaoDeTipo();
         if(type != NULL){
+
         	types->push_back(type);
-        	t = Lexicon::getTokenList(this->currentToken);
-        	if(t->var_value.compare(";") == 0)
-        		eat(t->var_value);
-        	else {
+        	if(eat(";") == ""){
         		delete types;
         		return NULL;
         	}
-        }else {
-        	return NULL;
         }
 
         //ParteDeDefinicoesDeTiposAux
@@ -262,10 +269,7 @@ vector<BlockType*> *Parser::parteDeDefinicoesDeTipos() {
 			if(type != NULL){
 				types->push_back(type);
 
-	            t = Lexicon::getTokenList(this->currentToken);
-	        	if(t->var_value.compare(";") == 0)
-	        		eat(t->var_value);
-	            else {
+	        	if(eat(";") == ""){
 	            	delete types;
 	            	return NULL;
 	            }
@@ -275,79 +279,56 @@ vector<BlockType*> *Parser::parteDeDefinicoesDeTipos() {
 
         }
 
+        return types;
     }
-    else {
-        delete types;
-        return NULL;
-    }
-    return types;
+
+    return NULL;
 }
 
 BlockType *Parser::definicaoDeTipo() {
-    Token *t = Lexicon::getTokenList(this->currentToken);
-
     Type *ntype = NULL;
     Variable *variable = NULL;
+    string aux;
 
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_type.compare("IDENTIFICADOR") == 0){
-        eat(t->var_value);
+    aux = eatType("IDENTIFICADOR");
+    if(aux != ""){
 
-        variable = new Variable(t->var_value);
-        
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare("=") == 0) {
-            eat(t->var_value);
+        variable = new Variable(aux);
+
+        if(eat("=") != "") {
 
             ntype = tipo();
 
-        }
-        else {
-        	delete variable;
-            return NULL;
+            if(ntype != NULL)
+            	return new BlockType(variable, ntype);
         }
     }
-    else {
-        return NULL;
-    }
-    return new BlockType(variable, ntype);
+
+    return NULL;
 }
 
 Type *Parser::tipo() {
-    Token *t = Lexicon::getTokenList(this->currentToken);
-    
     vector<Number*> *indices = NULL;
     Variable *variable = NULL;
     Type *newtype = NULL;
-    int aux;
+    string aux;
+    int token;
 
-    if(t->var_type.compare("IDENTIFICADOR") == 0){
-    	if(t->var_value.compare("integer") == 0 || t->var_value.compare("real") == 0 ||
-		   t->var_value.compare("boolean") == 0 || t->var_value.compare("byte") == 0 ||
-		   t->var_value.compare("char") == 0 || t->var_value.compare("string") == 0 ||
-		   t->var_value.compare("text") == 0)
-    	{
+	aux = eatVarType();
+	if(aux != "") {
 
-			eat(t->var_value);
-			variable = new Variable(t->var_value);
-    	}
+		variable = new Variable(aux);
+		return new Type(variable, indices, newtype);
     }
-    else if(t->var_value.compare("array") == 0) {
-        eat(t->var_value);
+    else if(eat("array") != "") {
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare("[") == 0) {
-            eat(t->var_value);
+        if(eat("[") != "") {
 
             indices = indice();
 
-
             while(true){
-                t = Lexicon::getTokenList(this->currentToken);
-                if(t->var_value.compare(",") == 0) {
-                	aux = this->currentToken;
-                    eat(t->var_value);
-
+            	token = this->currentToken;
+                if(eat(",") != "") {
                     vector<Number*> *indicesAux = indice();
                     if(indicesAux != NULL) {
 						indices->insert(
@@ -356,7 +337,7 @@ Type *Parser::tipo() {
 							std::make_move_iterator(indicesAux->end())
 						);
                     } else {
-                    	this->currentToken = aux;
+                    	this->currentToken = token;
                     	break;
                     }
                 } else {
@@ -364,96 +345,60 @@ Type *Parser::tipo() {
                 }
             }
 
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value.compare("]") == 0) {
-                eat(t->var_value);
+            if(eat("]") != "") {
 
-                t = Lexicon::getTokenList(this->currentToken);
-                if(t->var_value.compare("of") == 0) {
-                    eat(t->var_value);
+                if(eat("of") != "") {
 
                     newtype = tipo();
 
-                }
-                else {
-                    return NULL;
+                    if(newtype != NULL)
+                    	return new Type(variable, indices, newtype);
+
                 }
 
             }
-            else {
-                return NULL;
-            }
 
         }
-        else {
-            return NULL;
-        }
     }
-    else {
-        return NULL;
-    }
-    return new Type(variable, indices, newtype);
+
+    return NULL;
 }
 
 
 vector<Number*> *Parser::indice() {
-
-    Token *t;
     vector<Number*> *indices = new vector<Number*>();
+    string aux;
 
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_type.compare("NUMERO") == 0){
-        eat(t->var_value);
-        
-        indices->push_back(new Number(t->var_value));
+    aux = eatType("NUMERO");
+    if(aux != ""){
+    	indices->push_back(new Number(aux));
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare("..") == 0) {
-            eat(t->var_value);
+        if(eat("..") != "") {
 
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_type.compare("NUMERO") == 0){
-                eat(t->var_value);
+        	aux = eatType("NUMERO");
+            if(aux != ""){
 
-                indices->push_back(new Number(t->var_value));
+                indices->push_back(new Number(aux));
+
+                return indices;
 
             }
-            else {
-                delete indices;
-                return NULL;
-            }
-            
-        }  
-        else {
-            delete indices;
-            return NULL;
         }
-    } else {
-        delete indices;
-        return NULL;
     }
-    return indices;
+    return NULL;
 }
 
 
 vector<BlockVar*> *Parser::parteDeDeclaracoesDeVariaveis() {
-    Token *t;
-
     vector<BlockVar*> *listV = new vector<BlockVar*>();
     BlockVar *bt;
 
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value.compare("var") == 0) {
-        eat(t->var_value);
-
+    if(eat("var") != "") {
         bt = declaracoesDeVariaveis();
 
         if(bt != NULL){
         	listV->push_back(bt);
-        	t = Lexicon::getTokenList(this->currentToken);
-			if(t->var_value.compare(";") == 0){
-				eat(t->var_value);
-			}else{
+			if(eat(";") == ""){
 				delete listV;
 				return NULL;
 			}
@@ -468,12 +413,10 @@ vector<BlockVar*> *Parser::parteDeDeclaracoesDeVariaveis() {
 			if(bt != NULL){
 				listV->push_back(bt);
 
-				t = Lexicon::getTokenList(this->currentToken);
-				if(t->var_value.compare(";") == 0){
-					eat(t->var_value);
-	            } else {
+				if(eat(";") == ""){
 	                break;
 	            }
+
 			} else {
 				break;
 			}
@@ -489,54 +432,44 @@ vector<BlockVar*> *Parser::parteDeDeclaracoesDeVariaveis() {
 
 
 BlockVar *Parser::declaracoesDeVariaveis() {
-    Token *t;
-
-    vector<Variable*> *listaID = listaDeIdentificadores();
+    vector<Variable*> *listaID = NULL;
     Type *p;
 
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value.compare(":") == 0) {
-        eat(t->var_value);
-
+    listaID = listaDeIdentificadores();
+    if(listaID != NULL && eat(":") != "") {
         p = tipo();
         if(p == NULL){
         	delete listaID;
         	return NULL;
         }
+
+        return new BlockVar(listaID, p);
     }
-    else {
-    	delete listaID;
-        return NULL;
-    }
-    return new BlockVar(listaID, p);
+
+    return NULL;
 }
 
 
 vector<Variable*> *Parser::listaDeIdentificadores(){
-    Token *t;
     vector<Variable*> *listVariables = new vector<Variable*>();
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_type.compare("IDENTIFICADOR") == 0){
-        eat(t->var_value);
+    string aux;
 
-        listVariables->push_back(new Variable(t->var_value));
-        int aux;
-        
+    aux = eatType("IDENTIFICADOR");
+    if(aux != ""){
+        listVariables->push_back(new Variable(aux));
+        int token;
+
         while(true){
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value.compare(",") == 0) {
-            	aux = this->currentToken;
-                eat(t->var_value);
+        	token = this->currentToken;
+            if(eat(",") != "") {
+            	aux = eatType("IDENTIFICADOR");
+                if(aux != ""){
 
-                t = Lexicon::getTokenList(this->currentToken);
-                if(t->var_type.compare("IDENTIFICADOR") == 0){
-                    eat(t->var_value);
-
-                    listVariables->push_back(new Variable(t->var_value));
+                    listVariables->push_back(new Variable(aux));
 
                 }
                 else {
-                	this->currentToken = aux;
+                	this->currentToken = token;
                 	break;
                 }
 
@@ -554,51 +487,33 @@ vector<Variable*> *Parser::listaDeIdentificadores(){
 
 
 vector<DeclarationFunction*> *Parser::parteDeDeclaracoesDeSubRotinas(){
-    Token *t;
-
     vector<DeclarationFunction*> *rotinas = new vector<DeclarationFunction*>();
 
     while(true) {
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare("procedure") == 0){
 
-            DeclarationFunction *p = declaracaoDeProcedimento();
+		DeclarationFunction *p = declaracaoDeProcedimento();
+		if(p != NULL) {
+			rotinas->push_back(p);
 
-            if(p != NULL) {
-            	rotinas->push_back(p);
+			if(eat(";") == "") {
+				delete rotinas;
+				return NULL;
+			}
+		}
 
-				t = Lexicon::getTokenList(this->currentToken);
-				if(t->var_value.compare(";") == 0) {
-					eat(t->var_value);
-				} else {
-					delete rotinas;
-					return NULL;
-				}
-            }else{
-                delete rotinas;
-            	return NULL;
-            }
-        } 
-        else if(t->var_value.compare("function") == 0){
+		DeclarationFunction *f = declaracaoDeFuncao();
+		if(f != NULL) {
+			rotinas->push_back(f);
 
-            DeclarationFunction *f = declaracaoDeFuncao();
+			if(eat(";") == "") {
+				delete rotinas;
+				return NULL;
+			}
+		}
 
-            if(f != NULL) {
-            	rotinas->push_back(f);
+        if(p == NULL && f == NULL)
+        	break;
 
-				t = Lexicon::getTokenList(this->currentToken);
-				if(t->var_value.compare(";") == 0) {
-					eat(t->var_value);
-				}
-            }
-            else{
-                delete rotinas;
-            	return NULL;
-            }
-        }
-        else {
-            break;
-        }
     }
 
     if(rotinas->size() == 0) {
@@ -611,144 +526,90 @@ vector<DeclarationFunction*> *Parser::parteDeDeclaracoesDeSubRotinas(){
 
 
 DeclarationFunction *Parser::declaracaoDeProcedimento(){
-    Token *t;
-
     Variable *functionName; vector<FormalParms*> *listParams; Block *block;
+    string aux;
+    if(eat("procedure") != "") {
+    	aux = eatType("IDENTIFICADOR");
+        if(aux != ""){
 
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value.compare("procedure") == 0) {
-        eat(t->var_value);
-
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_type.compare("IDENTIFICADOR") == 0){
-            eat(t->var_value);
-
-            functionName = new Variable(t->var_value);
+            functionName = new Variable(aux);
 
             listParams = parametrosFormais();
 
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value.compare(";") == 0) {
-                eat(t->var_value);
-                
+            if(listParams != NULL && eat(";") != "") {
+
                 block = bloco();
 
-                if(block == NULL) {
-                	return NULL;
+                if(block != NULL) {
+                	return new DeclarationFunction(functionName, listParams, NULL, block);
                 }
             }
-            else {
-                return NULL;
-            }
-
-        } 
-        else {
-            return NULL;
         }
     }
-    else {
-        return NULL;
-    }
-    return new DeclarationFunction(functionName, listParams, NULL, block);
+
+    return NULL;
 }
 
 
 DeclarationFunction *Parser::declaracaoDeFuncao(){
-    Token *t;
-
     Variable *functionName; vector<FormalParms*> *listParams; Variable *functionType; Block *block;
+    string aux;
 
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value.compare("function") == 0) {
-        eat(t->var_value);
+    if(eat("function") != "") {
+    	aux = eatType("IDENTIFICADOR");
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_type.compare("IDENTIFICADOR") == 0){
-            eat(t->var_value);
+        if(aux != ""){
 
-            functionName = new Variable(t->var_value);
+            functionName = new Variable(aux);
 
             listParams = parametrosFormais();
 
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value.compare(":") == 0) {
-                eat(t->var_value);
+            if(listParams != NULL && eat(":") != "") {
 
-                t = Lexicon::getTokenList(this->currentToken);
-                if(t->var_type.compare("IDENTIFICADOR") == 0){
-                	if(t->var_value.compare("integer") == 0 || t->var_value.compare("real") == 0 ||
-					   t->var_value.compare("boolean") == 0 || t->var_value.compare("byte") == 0 ||
-					   t->var_value.compare("char") == 0 || t->var_value.compare("string") == 0 ||
-					   t->var_value.compare("text") == 0)
-                	{
-						eat(t->var_value);
+            	aux = eatVarType();
+				if(aux != "") { //Tipo do elemento
+					functionType = new Variable(aux);
 
-						functionType = new Variable(t->var_value);
+					if(eat(";") != "") {
 
-						t = Lexicon::getTokenList(this->currentToken);
-						if(t->var_value.compare(";") == 0) {
-							eat(t->var_value);
+						block = bloco();
 
-							block = bloco();
-
-							if(block == NULL) {
-								return NULL;
-							}
-
+						if(block != NULL) {
+							return new DeclarationFunction(functionName, listParams, functionType, block);
 						}
-						else {
-							return NULL;
-						}
-                }
-                else {
-                    return NULL;
-                }
-              }
+					}
+				}
+
             }
-            else {
-                return NULL;
-            }
-    
-        }
-        else {
-            return NULL;
         }
     }
-    else {
-        return NULL;
-    }
-    return new DeclarationFunction(functionName, listParams, functionType, block);
+
+    return NULL;
 }
 
 
 vector<FormalParms*> *Parser::parametrosFormais(){
-
-    Token *t = Lexicon::getTokenList(this->currentToken);
-
-    FormalParms *p;
+	FormalParms *p;
     vector<FormalParms*> *params = new vector<FormalParms*>();
 
-    if(t->var_value.compare("(") == 0) {
-        eat(t->var_value);
+    if(eat("(") != "") {
 
         p = secoesDeParametrosFormais();
 
         if(p != NULL){
         	params->push_back(p);
 
-        	int aux;
+        	int token;
 			while(true){
-				t = Lexicon::getTokenList(this->currentToken);
-				if(t->var_value.compare(",") == 0) {
-					aux = this->currentToken;
-					eat(t->var_value);
+				token = this->currentToken;
+				if(eat(",") != "") {
 
 					p = secoesDeParametrosFormais();
 					if(p != NULL){
 						params->push_back(p);
 					}
 	                else {
-	                	this->currentToken = aux;
+	                	this->currentToken = token;
 	                	break;
 	                }
 
@@ -758,103 +619,75 @@ vector<FormalParms*> *Parser::parametrosFormais(){
 			}
         }
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare(")") == 0) {
-            eat(t->var_value);
-        }
-        else {
-            return NULL;
+        if(eat(")") != "") {
+        	return params;
         }
     }
-    else {
-        return NULL;
-    }
-    return params;
+
+    return NULL;
 }
 
 
 FormalParms *Parser::secoesDeParametrosFormais(){
 
-    Token *t = Lexicon::getTokenList(this->currentToken);
-
-    string op = "", type = "";
+    string op = "", type = "", aux;
     vector<Variable*> *params = NULL;
 
-    if(t->var_value.compare("var") == 0 || t->var_type.compare("IDENTIFICADOR") == 0) {
-        if(t->var_value.compare("var") == 0){
-            eat(t->var_value);
-            op = "var";
-        }
+	if(eat("var") != ""){
 
-        params = listaDeIdentificadores();
+		op = "var";
+	}
 
-        if(params == NULL)
-        	return NULL;
+	params = listaDeIdentificadores();
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare(":") == 0) {
-            eat(t->var_value);
+	if(params != NULL && eat(":") != "") {
 
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_type.compare("IDENTIFICADOR") == 0){
-                eat(t->var_value);
+    	type = eatVarType();
+		if(type != "") {
 
-                type = t->var_value;
+			return new FormalParms(op, params, type);
 
-            }
-        }
-        else {
-            delete params;
-            return NULL;
-        }
-    }
-    else if(t->var_value.compare("function") == 0) {
-        eat(t->var_value);
+		}
+	}
 
-            op = "function";
-            params = listaDeIdentificadores();
 
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value.compare(":") == 0) {
-                eat(t->var_value);
 
-                t = Lexicon::getTokenList(this->currentToken);
-                if(t->var_type.compare("IDENTIFICADOR") == 0){
-                    eat(t->var_value);
+    if(eat("function") != "") {
 
-                    type = t->var_value;
+		op = "function";
+		params = listaDeIdentificadores();
 
-                }
-            }
-            else {
-                delete params;
-                return NULL;
-            }
+		if(params != NULL && eat(":") != "") {
+
+			aux = eatType("IDENTIFICADOR");
+			if(aux != ""){
+
+				type = aux;
+				return new FormalParms(op, params, type);
+
+			}
+		}
 
     }
-    else if(t->var_value.compare("procedure") == 0) {
-        eat(t->var_value);
+
+    if(eat("procedure") != "") {
 
         op = "procedure";
         params = listaDeIdentificadores();
 
+        if(params != NULL)
+            return new FormalParms(op, params, type);
     }
-    else
-    	return NULL;
-    return new FormalParms(op, params, type);
+
+    return NULL;
 }
 
 
 vector<Statement*> *Parser::comandoComposto(){
-
-    Token *t = Lexicon::getTokenList(this->currentToken);
-    
     vector<Statement*> *st = NULL;
     Statement*s = NULL;
 
-    if(t->var_value.compare("begin") == 0) {
-        eat(t->var_value);
-
+    if(eat("begin") != "") {
         st = new vector<Statement*>();
 
         s = comando();
@@ -863,25 +696,18 @@ vector<Statement*> *Parser::comandoComposto(){
         		return NULL;
 
         	st->push_back(s);
-        	t = Lexicon::getTokenList(this->currentToken);
-        	if(t->var_value.compare(";") == 0) {
-        		eat(t->var_value);
-        	} else {
+
+        	if(eat(";") == "") {
         		delete st;
         		return NULL;
         	}
 
             while(true){
-                t = Lexicon::getTokenList(this->currentToken);
 				s = comando();
 				if(s != NULL){
 					st->push_back(s);
-					t = Lexicon::getTokenList(this->currentToken);
-		        	if(t->var_value.compare(";") == 0) {
-		        		eat(t->var_value);
-		        	} else {
+		        	if(eat(";") == "") {
 		        		delete st;
-		        		return NULL;
 		        	}
 				} else {
 					break;
@@ -890,55 +716,44 @@ vector<Statement*> *Parser::comandoComposto(){
         }
         else {
             delete st;
-        	return NULL;
         }
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare("end") == 0) {
-            eat(t->var_value);
-        }
-        else {
-            return NULL;
+        if(eat("end") != "") {
+        	return st;
         }
     }
-    return st;
+    return NULL;
 }
 
 
 Statement *Parser::comando(){
-
-    Token *t;
-    
     Number *n = NULL; StatementWithoutLabel *st = NULL;
+    string aux;
 
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_type.compare("NUMERO") == 0){
-        eat(t->var_value);
+    aux = eatType("NUMERO");
+    if(aux != ""){
 
-        n = new Number(t->var_value);
+        n = new Number(aux);
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare(":") == 0) {
-            eat(t->var_value);
+        if(eat(":") != "") {
 
             st = comandoSemRotulo();
-            if(st == NULL)
-                return NULL;
+            if(st != NULL)
+                return new Statement(n , st);
         }
 
     } else {
         st = comandoSemRotulo();
-        if(st == NULL)
-            return NULL;
+        if(st != NULL)
+            return new Statement(n , st);
     }
 
-    return new Statement(n , st);
+    return NULL;
 }
 
 
 StatementWithoutLabel *Parser::comandoSemRotulo(){
 
-    Token *t;
     Assign *assign = NULL;
     Declaration *declaration = NULL;
     Number *goto_ = NULL;
@@ -948,222 +763,185 @@ StatementWithoutLabel *Parser::comandoSemRotulo(){
     Read *read = NULL;
     Write *write = NULL;
 
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_type.compare("IDENTIFICADOR") == 0){
-        
-        t = Lexicon::getTokenList(this->currentToken + 1);
-        if(t->var_value.compare(":=") == 0 || t->var_value.compare("(") != 0) {
-            assign = atribuicoes();
-            if(assign == NULL)
-            	return NULL;
-        }
-        else {
-            if(t->var_value.compare("(") == 0) {
-                declaration = chamadaDeFuncao();
-                if(declaration == NULL)
-                	return NULL;
-            }
-            else {
-                return NULL;
-            }
-        }
-    }
-    else if(t->var_value.compare("goto") == 0) {
-        goto_ = desvios();
-        if(goto_ == NULL)
-            return NULL;
-    }
-    else if(t->var_value.compare("begin") == 0) {
-        statements = comandoComposto();
-        if(statements == NULL)
-            return NULL;
-    }
-    else if(t->var_value.compare("if") == 0) {
-        branch = comandoCondicional();
-        if(branch == NULL)
-            return NULL;
-    }
+    int token = this->currentToken;
 
-    else if(t->var_value.compare("while") == 0){
-        loop = comandoRepetitivo();
-        if(loop == NULL)
-            return NULL;
-    }
-    else if(t->var_value.compare("read") == 0){
-        read = readParser();
-        if(read == NULL)
-            return NULL;
-    }
-    else if(t->var_value.compare("write") == 0){
-        write = writeParser();
-        if(write == NULL)
-            return NULL;
-    }
-    else
-    	return NULL;
-    return new StatementWithoutLabel(assign, declaration, goto_, statements, branch, loop, read, write);
+	declaration = chamadaDeProcedimentos();
+	if(declaration != NULL)
+		return new StatementWithoutLabel(assign, declaration, goto_, statements, branch, loop, read, write);
+	else
+		this->currentToken = token;
+
+	assign = atribuicoes();
+	if(assign != NULL)
+		return new StatementWithoutLabel(assign, declaration, goto_, statements, branch, loop, read, write);
+	else
+		this->currentToken = token;
+
+	goto_ = desvios();
+	if(goto_ != NULL)
+		return new StatementWithoutLabel(assign, declaration, goto_, statements, branch, loop, read, write);
+
+	statements = comandoComposto();
+	if(statements != NULL)
+		return new StatementWithoutLabel(assign, declaration, goto_, statements, branch, loop, read, write);
+
+	branch = comandoCondicional();
+	if(branch != NULL)
+		return new StatementWithoutLabel(assign, declaration, goto_, statements, branch, loop, read, write);
+
+	loop = comandoRepetitivo();
+	if(loop != NULL)
+		return new StatementWithoutLabel(assign, declaration, goto_, statements, branch, loop, read, write);
+
+	read = readParser();
+	if(read != NULL)
+		return new StatementWithoutLabel(assign, declaration, goto_, statements, branch, loop, read, write);
+
+	write = writeParser();
+	if(write != NULL)
+		return new StatementWithoutLabel(assign, declaration, goto_, statements, branch, loop, read, write);
+
+    return NULL;
 }
 
 
 Assign *Parser::atribuicoes(){
 
-    Token *t;
     Expression *ex;
-    Declaration *dec = variavel();
 
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value.compare(":=") == 0) {
-        eat(t->var_value);
+    Declaration *dec = NULL;
+
+    dec = variavel();
+
+    if(dec != NULL && eat(":=") != "") {
 
         ex = expressoes();
 
+        if(ex != NULL){
+            return new Assign(dec, ex);
+        }
+
     }
-    else {
-        return NULL;
-    }
-    return new Assign(dec, ex);
+
+    return NULL;
 }
 
 Declaration *Parser::chamadaDeProcedimentos(){
+   string aux;
+   Variable *v = NULL;
+   vector<Expression*> *exs = NULL;
 
-    Token *t;
-    Variable *v = NULL;
-    vector<Expression*> *exs = NULL;
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_type.compare("IDENTIFICADOR") == 0){
-        eat(t->var_value);
+   aux = eatType("IDENTIFICADOR");
+    if(aux != ""){
 
-        v = new Variable(t->var_value);
+        v = new Variable(aux);
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value == "(") {
-            eat(t->var_value);
+        if(eat("(") != "") {
 
             exs = listaDeExpressoes();
 
+            if(eat(")") != "") {
 
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value == ")") {
-                eat(t->var_value);
+                return new Declaration(v, exs);
             }
-            else {
-                return NULL;
-            }
-        }
-        else {
-            return NULL;
         }
     }
 
-    return new Declaration(v, exs);
+    return NULL;
 }
 
 Number *Parser::desvios(){
-    Token *t = Lexicon::getTokenList(this->currentToken);
+    string aux;
 
-    Number *n= NULL;
+    if(eat("goto") != "") {
 
-    if(t->var_value == "goto") {
-        eat(t->var_value);
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_type.compare("NUMERO") == 0){
-            eat(t->var_value);
+    	aux = eatType("NUMERO");
+        if(aux != ""){
 
-            n = new Number(t->var_value);
+            return new Number(aux);
 
         }
-        else
-        	return NULL;
     }
 
-    return n;
+    return NULL;
 }
 
 Branch *Parser::comandoCondicional(){
-    Token *t = Lexicon::getTokenList(this->currentToken);
 
     Expression *ex = NULL; StatementWithoutLabel *st1 = NULL; StatementWithoutLabel *st2 = NULL;
 
-    if(t->var_value == "if") {
-        eat(t->var_value);
+    if(eat("if") != "") {
 
         ex = expressoes();
 
         if (ex == NULL)
         	return NULL;
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value == "then") {
-            eat(t->var_value);
-
+        if(eat("then") != "") {
             st1 = comandoSemRotulo();
 
             if (st1 == NULL)
             	return NULL;
 
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value == "else") {
-                eat(t->var_value);
-
+            if(eat("else") != "") {
                 st2 = comandoSemRotulo();
 
+                if(st2 != NULL){
+                	return new Branch(ex, st1, st2);
+                }
             }
+
+            return new Branch(ex, st1, st2);
         }
-        else {
-            return NULL;
-        }
+
     }
 
-    return new Branch(ex, st1, st2);
+    return NULL;
 }
 
 Loop *Parser::comandoRepetitivo(){
-    Token *t = Lexicon::getTokenList(this->currentToken);
 
     Expression *ex = NULL; StatementWithoutLabel *st1 = NULL;
 
-    if(t->var_value == "while") {
-        eat(t->var_value);
+    if(eat("while") != "") {
 
         ex = expressoes();
 
         if (ex == NULL)
         	return NULL;
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value == "do") {
-            eat(t->var_value);
+        if(eat("do") != "") {
 
             st1 = comandoSemRotulo();
             if (st1 == NULL)
             	return NULL;
+
+            return new Loop(ex, st1);
         }
-        else {
-            return NULL;
-        }
+
     }
 
-    return new Loop(ex, st1);
+    return NULL;
 }
 
 vector<Expression*> *Parser::listaDeExpressoes(){
     vector<Expression*> *listEx = new vector<Expression*>();
     Expression *ex = NULL;
+    int token;
 
     ex = expressoes();
 
     if(ex != NULL)
         listEx->push_back(ex);
+    else
+    	return NULL;
 
     ex = NULL;
 
-    Token *t;
-    int aux;
     while(true){
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare(",") == 0) {
-        	aux = this->currentToken;
-            eat(t->var_value);
+
+        if(eat(",") != "") {
+        	token = this->currentToken;
 
             ex = expressoes();
 
@@ -1171,7 +949,7 @@ vector<Expression*> *Parser::listaDeExpressoes(){
                 listEx->push_back(ex);
             }
             else {
-            	this->currentToken = aux;
+            	this->currentToken = token;
             	break;
             }
 
@@ -1194,31 +972,22 @@ Expression *Parser::expressoes(){
     SimpleExpression *simpleEx2 = expressaoSimples();
     if(simpleEx1 == NULL)
         return NULL;
-    if(s != "" && simpleEx2 == NULL)
-    	return NULL;
 
     return new Expression(simpleEx1, s, simpleEx2);
 }
 
 string Parser::relacao(){
-    Token *t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_value.compare("=") == 0) {
-        eat(t->var_value);
+    if(eat("=") != "") {
         return "=";
-    } else if(t->var_value.compare("<>") == 0) {
-        eat(t->var_value);
+    } else if(eat("<>") != "") {
         return "<>";
-    } else if(t->var_value.compare("<") == 0) {
-        eat(t->var_value);
+    } else if(eat("<") != "") {
         return "<";
-    } else if(t->var_value.compare("<=") == 0) {
-        eat(t->var_value);
+    } else if(eat("<=") != "") {
         return "<=";
-    } else if(t->var_value.compare(">") == 0) {
-        eat(t->var_value);
+    } else if(eat(">") != "") {
         return ">";
-    } else if(t->var_value.compare(">=") == 0) {
-        eat(t->var_value);
+    } else if(eat(">=") != "") {
         return ">=";
     } else {
         return "";
@@ -1226,18 +995,14 @@ string Parser::relacao(){
 }
 
 SimpleExpression *Parser::expressaoSimples(){
-    Token *t = Lexicon::getTokenList(this->currentToken);
-
     string op, opAux;
     Term *term = NULL, *termAux = NULL;
     SimpleExpression *simpleEx = NULL, *simpleExAux1, *simpleExAux2;
 
-    if(t->var_value == "+") {
-        eat(t->var_value);
-        op = t->var_value;
-    } else if(t->var_value == "-") {
-        eat(t->var_value);
-        op = t->var_value;
+    if(eat("+") != "") {
+        op = "+";
+    } else if(eat("-") != "") {
+        op = "-";
     }
 
     term = termo();
@@ -1250,18 +1015,14 @@ SimpleExpression *Parser::expressaoSimples(){
 
     while(true) {
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value == "+") {
-            eat(t->var_value);
-            opAux = t->var_value;
+        if(eat("+") != "") {
+        	opAux = "+";
             termAux = termo();
-        } else if(t->var_value == "-") {
-            eat(t->var_value);
-            opAux = t->var_value;
+        } else if(eat("-") != "") {
+            opAux = "-";
             termAux = termo();
-        } else if(t->var_value == "or") {
-            eat(t->var_value);
-            opAux = t->var_value;
+        } else if(eat("or") != "") {
+            opAux = "or";
             termAux = termo();
         } else {
             break;
@@ -1289,19 +1050,14 @@ Term *Parser::termo(){
     term = new Term(f, "", NULL);
     termAux1 = term;
 
-    Token *t = Lexicon::getTokenList(this->currentToken);
     while(true) {
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value == "*") {
-            eat(t->var_value);
+        if(eat("*") != "") {
             f = fator();
             op = "*";
-        } else if(t->var_value == "div") {
-            eat(t->var_value);
+        } else if(eat("div") != "") {
             f = fator();
             op = "div";
-        } else if(t->var_value == "and") {
-            eat(t->var_value);
+        } else if(eat("and") != "") {
             f = fator();
             op = "and";
         } else {
@@ -1321,212 +1077,180 @@ Term *Parser::termo(){
 }
 
 Factor *Parser::fator(){
-    Token *t, *t2;
+	string aux;
     Variable *v;
     Declaration *d1 = NULL; Number *n1 = NULL; Expression *ex1 = NULL; Factor *f1 = NULL;
 
-    t2 = Lexicon::getTokenList(this->currentToken-1);
-    t = Lexicon::getTokenList(this->currentToken);
-    if((t2->var_type.compare("IDENTIFICADOR") == 0) && (t->var_value.compare("[") == 0 || t->var_value.compare("(") == 0)) {
-		vector<Expression*> *exs = fatorAux();
+    aux = eatType("IDENTIFICADOR");
+    if(aux != ""){
 
-		d1 = new Declaration(NULL, exs);
-    }
-    else if(t->var_type.compare("IDENTIFICADOR") == 0){
-        eat(t->var_value);
-        
-        v = new Variable(t->var_value);
+        v = new Variable(aux);
         vector<Expression*> *exs = fatorAux();
 
         d1 = new Declaration(v, exs);
 
+        return new Factor(d1, n1, ex1, f1);
     }
-    else if(t->var_type.compare("NUMERO") == 0){
-        eat(t->var_value);
-        
-        n1 = new Number(t->var_value);
 
+    aux = eatType("NUMERO");
+    if(aux != ""){
+
+        n1 = new Number(aux);
+
+        return new Factor(d1, n1, ex1, f1);
     }
-    else if(t->var_value.compare("(") == 0) {
-        eat(t->var_value);
-        
+
+    if(eat("(") != "") {
+
         ex1 = expressoes();
         if(ex1 == NULL)
             return NULL;
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare(")") == 0) {
-            eat(t->var_value);
-        } else {
-            return NULL;
+        if(eat(")") != "") {
+        	return new Factor(d1, n1, ex1, f1);
         }
     }
-    else if(t->var_value == "not") {
-        eat(t->var_value);
+
+    if(eat("not") != "") {
 
         f1 = fator();
 
-        if(f1 == NULL)
-            return NULL;
+        if(f1 != NULL)
+        	return new Factor(d1, n1, ex1, f1);
     }
-    else {
-    	return NULL;
-    }
-    return new Factor(d1, n1, ex1, f1);
+
+    return NULL;
 }
 
 vector<Expression*> *Parser::fatorAux() {
-    Token *t = Lexicon::getTokenList(this->currentToken);
     vector<Expression*> *exs = NULL;
 
-	if(t->var_value.compare("[") == 0) {
-		eat(t->var_value);
+	if(eat("[") != "") {
 
 		exs = listaDeExpressoes();
 
-		t = Lexicon::getTokenList(this->currentToken);
-		if(t->var_value.compare("]") == 0) {
-			eat(t->var_value);
-		} else {
-			return NULL;
+		if(exs != NULL && eat("]") != "") {
+			return exs;
 		}
 	} else {
-		if(t->var_value.compare("(") == 0) {
-				eat(t->var_value);
+		if(eat("(") != "") {
 
-				exs = listaDeExpressoes();
+			exs = listaDeExpressoes();
 
-				t = Lexicon::getTokenList(this->currentToken);
-				if(t->var_value.compare(")") == 0) {
-					eat(t->var_value);
-				} else {
-					return NULL;
-				}
+			if(eat(")") != "") {
+				return exs;
 			}
+		}
 	}
 
-    if(exs == NULL)
-        return NULL;
-    return exs;
+
+    return NULL;
 }
 
 Declaration *Parser::variavel(){
-    Token *t;
     Variable *v = NULL;
     vector<Expression*> *exs = NULL;
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_type.compare("IDENTIFICADOR") == 0){
-        eat(t->var_value);
+    string aux;
+    int token = this->currentToken;
 
-        v = new Variable(t->var_value);
+    aux = eatType("IDENTIFICADOR");
+    if(aux != ""){
+        v = new Variable(aux);
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value.compare("[") == 0){
+        token = this->currentToken;
+        if(eat("[") != ""){
         	exs = listaDeExpressoes();
+
+			if(exs != NULL && eat("]") != ""){
+				return new Declaration(v, exs);
+			}
+
         }
 
+        this->currentToken = token;
+        return new Declaration(v, NULL);
     }
-    else {
-        return NULL;
-    }
-    return new Declaration(v, exs);
+
+    this->currentToken = token;
+    return NULL;
 }
 
 Declaration *Parser::chamadaDeFuncao(){
-    Token *t;
     Variable *v = NULL;
     vector<Expression*> *exs = NULL;
-    t = Lexicon::getTokenList(this->currentToken);
-    if(t->var_type.compare("IDENTIFICADOR") == 0){
-        eat(t->var_value);
-        
-        v = new Variable(t->var_value);
+    int token = this->currentToken;
 
-        t = Lexicon::getTokenList(this->currentToken);
-        if(t->var_value == "(") {
-            eat(t->var_value);
+    string aux = eatType("IDENTIFICADOR");
+    if(aux != ""){
+
+        v = new Variable(aux);
+
+        token = this->currentToken;
+
+        if(eat("(") != "") {
 
             exs = listaDeExpressoes();
 
-            t = Lexicon::getTokenList(this->currentToken);
-            if(t->var_value == ")") {
-                eat(t->var_value);
+            if(eat(")") != "") {
+            	return new Declaration(v, exs);
             }
-            else {
-                return NULL;
-            }
-        }
-        else {
-            return NULL;
         }
 
+        this->currentToken = token;
+        return new Declaration(v, NULL);
     }
 
-    return new Declaration(v, exs);
+    this->currentToken = token;
+    return NULL;
 }
 
 Read *Parser::readParser() {
 
-	Token *t = Lexicon::getTokenList(this->currentToken);
 	vector<Variable*> *variables = NULL;
+	int token = this->currentToken;
 
-	if(t->var_type.compare("read") == 0 || t->var_type.compare("readln") == 0){
-		eat(t->var_value);
+	if(eat("read") != "" || eat("readln") != ""){
 
-		t = Lexicon::getTokenList(this->currentToken);
-		if(t->var_type.compare("(") == 0){
-			eat(t->var_value);
+		if(eat("(") != ""){
 
 			variables = listaDeIdentificadores();
 
-			t = Lexicon::getTokenList(this->currentToken);
-			if(t->var_type.compare(")") == 0){
-				eat(t->var_value);
-
+			if(variables != NULL && eat(")") != ""){
+				return new Read(variables);
 			}
-			else
-				return NULL;
+
 		}
-		else
-			return NULL;
+
 	}
 
-	if(variables == NULL)
-		return NULL;
-
-	return new Read(variables);
+	this->currentToken = token;
+	return NULL;
 }
 
 Write *Parser::writeParser() {
-	Token *t = Lexicon::getTokenList(this->currentToken);
 	vector<Expression*> *expressions = NULL;
+	int token = this->currentToken;
 
-	if(t->var_type.compare("write") == 0 || t->var_type.compare("writeln") == 0){
-		eat(t->var_value);
+	if(eat("write") != "" || eat("writeln") != ""){
 
-		t = Lexicon::getTokenList(this->currentToken);
-		if(t->var_type.compare("(") == 0){
-			eat(t->var_value);
+		if(eat("(") != ""){
 
 			expressions = listaDeExpressoes();
 
-			t = Lexicon::getTokenList(this->currentToken);
-			if(t->var_type.compare(")") == 0){
-				eat(t->var_value);
-
+			if(expressions != NULL && eat(")") != ""){
+				return new Write(expressions);
 			}
-			else
-				return NULL;
+
 		}
-		else
-			return NULL;
+
 	}
 
-	if(expressions == NULL)
-		return NULL;
-
-	return new Write(expressions);
+	this->currentToken = token;
+	return NULL;
 }
+
+
+
 
 
 

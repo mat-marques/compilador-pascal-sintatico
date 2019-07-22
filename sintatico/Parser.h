@@ -21,9 +21,13 @@ class Parser : public Lexicon{
 
   private:
     int currentToken = 0;
+    int currentERROR = 0;
     bool syntaxError = false;
     Program *ast = NULL;
-    void eat(string symbol);
+    string eat(string symbol);
+    void eatFinal();
+    string eatVarType();
+    string eatType(string symbol);
 
     void programa();
     Block *bloco();

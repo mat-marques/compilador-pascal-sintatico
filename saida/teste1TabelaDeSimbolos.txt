@@ -1,6 +1,0 @@
-14, 1 -> [name: f1] [categoria: função] [level: 2] [tipo: real] [deslocamento: -4] [referência: ]
-61, 1 -> [name: myarray] [categoria: variável simples] [level: 1] [tipo: real] [deslocamento: 0] [referência: valor]
-107, 1 -> [name: k] [categoria: parâmetro formal] [level: 2] [tipo: integer] [deslocamento: -3] [referência: valor]
-112, 1 -> [name: p] [categoria: procedimento] [level: 1] [tipo: ] [deslocamento: -3] [referência: ]
-175, 1 -> [name: a1] [categoria: variável simples] [level: 2] [tipo: integer] [deslocamento: 0] [referência: valor]
-176, 1 -> [name: a2] [categoria: variável simples] [level: 2] [tipo: real] [deslocamento: 1] [referência: valor]
