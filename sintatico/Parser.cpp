@@ -536,7 +536,7 @@ DeclarationFunction *Parser::declaracaoDeProcedimento(){
 
             listParams = parametrosFormais();
 
-            if(listParams != NULL && eat(";") != "") {
+            if(eat(";") != "") {
 
                 block = bloco();
 
@@ -564,7 +564,7 @@ DeclarationFunction *Parser::declaracaoDeFuncao(){
 
             listParams = parametrosFormais();
 
-            if(listParams != NULL && eat(":") != "") {
+            if(eat(":") != "") {
 
             	aux = eatVarType();
 				if(aux != "") { //Tipo do elemento
@@ -620,7 +620,8 @@ vector<FormalParms*> *Parser::parametrosFormais(){
         }
 
         if(eat(")") != "") {
-        	return params;
+        	if(params->size() > 0)
+        		return params;
         }
     }
 
@@ -968,10 +969,10 @@ vector<Expression*> *Parser::listaDeExpressoes(){
 
 Expression *Parser::expressoes(){
     SimpleExpression *simpleEx1 = expressaoSimples();
-    string s = relacao();
-    SimpleExpression *simpleEx2 = expressaoSimples();
     if(simpleEx1 == NULL)
         return NULL;
+    string s = relacao();
+    SimpleExpression *simpleEx2 = expressaoSimples();
 
     return new Expression(simpleEx1, s, simpleEx2);
 }
@@ -995,9 +996,9 @@ string Parser::relacao(){
 }
 
 SimpleExpression *Parser::expressaoSimples(){
-    string op, opAux;
+    string op = "", opAux = "";
     Term *term = NULL, *termAux = NULL;
-    SimpleExpression *simpleEx = NULL, *simpleExAux1, *simpleExAux2;
+    SimpleExpression *simpleEx = NULL, *simpleExAux1 = NULL, *simpleExAux2 = NULL;
 
     if(eat("+") != "") {
         op = "+";
@@ -1039,7 +1040,7 @@ SimpleExpression *Parser::expressaoSimples(){
 
 Term *Parser::termo(){
     Factor *f = NULL;
-    Term *term = NULL, *termAux1, *termAux2;
+    Term *term = NULL, *termAux1 = NULL, *termAux2 = NULL;
     string op = "";
 
     f = fator();
@@ -1151,13 +1152,11 @@ Declaration *Parser::variavel(){
     Variable *v = NULL;
     vector<Expression*> *exs = NULL;
     string aux;
-    int token = this->currentToken;
 
     aux = eatType("IDENTIFICADOR");
     if(aux != ""){
         v = new Variable(aux);
 
-        token = this->currentToken;
         if(eat("[") != ""){
         	exs = listaDeExpressoes();
 
@@ -1167,11 +1166,9 @@ Declaration *Parser::variavel(){
 
         }
 
-        this->currentToken = token;
         return new Declaration(v, NULL);
     }
 
-    this->currentToken = token;
     return NULL;
 }
 
@@ -1207,9 +1204,8 @@ Declaration *Parser::chamadaDeFuncao(){
 Read *Parser::readParser() {
 
 	vector<Variable*> *variables = NULL;
-	int token = this->currentToken;
 
-	if(eat("read") != "" || eat("readln") != ""){
+	if(eat("read") != ""){
 
 		if(eat("(") != ""){
 
@@ -1223,15 +1219,13 @@ Read *Parser::readParser() {
 
 	}
 
-	this->currentToken = token;
 	return NULL;
 }
 
 Write *Parser::writeParser() {
 	vector<Expression*> *expressions = NULL;
-	int token = this->currentToken;
 
-	if(eat("write") != "" || eat("writeln") != ""){
+	if(eat("write") != ""){
 
 		if(eat("(") != ""){
 
@@ -1244,8 +1238,6 @@ Write *Parser::writeParser() {
 		}
 
 	}
-
-	this->currentToken = token;
 	return NULL;
 }
 

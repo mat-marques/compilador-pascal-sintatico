@@ -124,7 +124,7 @@ void Block::printBlock(ofstream & hFile) {
 			}
 			hFile << "\n";
 			hFile << "end";
-			hFile << "\n\n";
+			hFile << "\n";
 		}
 	}
 }
@@ -306,26 +306,43 @@ void StatementWithoutLabel::printStatementWithoutLabel(ofstream & hFile) {
 
 void Statement::printStatement(ofstream & hFile) {
 	if(this->label != NULL) {
-		hFile << this->label->value << "\n";
+		hFile << "\n" << this->label->value << ": ";
 	} else {
 		hFile << "\n";
 	}
 
-	if(this->st != NULL)
+	if(this->st != NULL){
 		this->st->printStatementWithoutLabel(hFile);
+	}
 
 }
 
 void Read::printRead(ofstream & hFile) {
-	for (std::vector<Variable*>::iterator it = this->variables->begin(); it != this->variables->end(); ++it) {
-		(*it)->printVariable(hFile);
+	if(this->variables != NULL){
+		int s =  this->variables->size(), cont = 0;
+		hFile << "read ";
+		for (std::vector<Variable*>::iterator it = this->variables->begin(); it != this->variables->end(); ++it) {
+			(*it)->printVariable(hFile);
+			cont++;
+			if(cont < s)
+				hFile << ",";
+		}
+
 	}
 }
 
 
 void Write::printWrite(ofstream & hFile) {
-	for (std::vector<Expression*>::iterator it = this->expressions->begin(); it != this->expressions->end(); ++it) {
-		(*it)->printExpression(hFile);
+	if(this->expressions != NULL){
+		int s = this->expressions->size(), cont = 0;
+		hFile << "write ";
+		for (std::vector<Expression*>::iterator it = this->expressions->begin(); it != this->expressions->end(); ++it) {
+			(*it)->printExpression(hFile);
+			cont++;
+			if(cont < s)
+				hFile << ",";
+		}
+
 	}
 }
 
@@ -606,22 +623,26 @@ void Statement::removeStatement() {
 }
 
 void Read::removeRead() {
-	for (std::vector<Variable*>::iterator it = this->variables->begin(); it != this->variables->end(); ++it) {
-		delete (*it);
+	if(this->variables != NULL){
+		for (std::vector<Variable*>::iterator it = this->variables->begin(); it != this->variables->end(); ++it) {
+			delete (*it);
+		}
+		delete this->variables;
 	}
-	delete this->variables;
 }
 
 
 void Write::removeWrite() {
-	for (std::vector<Expression*>::iterator it = this->expressions->begin(); it != this->expressions->end(); ++it) {
-		(*it)->removeExpression();
+	if(this->expressions != NULL){
+		for (std::vector<Expression*>::iterator it = this->expressions->begin(); it != this->expressions->end(); ++it) {
+			(*it)->removeExpression();
+		}
+		delete this->expressions;
 	}
-	delete this->expressions;
 }
 
 
-//////// Tablea de Simbolos ////////
+//////// Tabela de Simbolos ////////
 
 HashTable *Program::createSymbolTable() {
 	HashTable *hash = new HashTable(211);

@@ -284,7 +284,7 @@ class Read {
 class Write {
 	public:
 		vector<Expression*> *expressions;
-		Write(vector<Expression*> *Expressions){
+		Write(vector<Expression*> *expressions){
 			this->expressions = expressions;
 		};
 		void printWrite(ofstream & hFile);
