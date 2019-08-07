@@ -20,8 +20,8 @@ var:
 a1 integer 
 a2 real 
 
-begin 1
-goto 10
+begin 
+1: goto 10
 p 
 a1 := 0 
 if a1 < 10  then
@@ -30,10 +30,9 @@ f1 := a1 and a1
 read a b 
 f1 := a + b 
 end
-
 function f2 real
-begin 2
-a := 10 
+begin 
+2: a := 10 
 b := 0 
 write a + 1 b 
 while b < a do
@@ -41,7 +40,6 @@ if b <= a  then
 b := b + 1 
 f2 := b div 2 
 end
-
 function max num1 num2 integer integer
 begin 
 if num1 > num2  then
@@ -50,12 +48,10 @@ result := num2
 
 max := result 
 end
-
 procedure p 
 begin 
 a := a + 1 
 end
-
 procedure p2 
 var:
 a1 integer 
@@ -70,16 +66,13 @@ begin
 a := a + 1 
 end
 
-
 begin 
 read a 
 write a 
 end
-
 
 begin 
 c := f1 
 d := f2 
 c := max c d 
 end
-

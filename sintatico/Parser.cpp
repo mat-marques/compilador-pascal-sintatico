@@ -3,7 +3,6 @@
 string Parser::eat(string symbol) {
     Token *t = Lexicon::getTokenList(this->currentToken);
     if(t != NULL){
-		cout << t->var_value << endl;
 		if(t->var_value.compare(symbol) == 0) {
 			this->currentToken = this->currentToken + 1;
 			return symbol;
@@ -15,7 +14,6 @@ string Parser::eat(string symbol) {
 string Parser::eatVarType() {
     Token *t = Lexicon::getTokenList(this->currentToken);
     if(t != NULL){
-    	cout << t->var_value << endl;
 		if(t->var_value.compare("integer") == 0) {
 			this->currentToken = this->currentToken + 1;
 			return "integer";
@@ -56,7 +54,6 @@ void Parser::eatFinal() {
 string Parser::eatType(string symbol) {
     Token *t = Lexicon::getTokenList(this->currentToken);
     if(t != NULL){
-		cout << t->var_value << endl;
 		if(t->var_type.compare(symbol) == 0) {
 			this->currentToken = this->currentToken + 1;
 			return t->var_value;
